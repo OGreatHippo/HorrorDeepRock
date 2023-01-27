@@ -4,16 +4,22 @@ using UnityEngine;
 
 public class PlayerCharacter : MonoBehaviour
 {
+    //Movement
     private CharacterController controller;
     private Vector3 playerVelocity;
     private float playerSpeed = 7.0f;
-    private float jumpHeight = 1.0f;
+    private float jumpHeight = 2.5f;
     private float gravity = -9.81f;
-    private bool grounded = false;
+
+    //Camera Movement
+    private float mouseSensitivity = 1000f;
+    private Transform playerCamera;
+    private float xRotationCamera = 0f;
 
     // Start is called before the first frame update
     void Start()
     {
+        Cursor.lockState = CursorLockMode.Locked;
         GetComponents();
     }
 
@@ -22,41 +28,58 @@ public class PlayerCharacter : MonoBehaviour
     {
         MouseLook();
         Movement();
+        Jump();
     }
 
     private void MouseLook()
     {
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
+        xRotationCamera -= mouseY;
+        xRotationCamera = Mathf.Clamp(xRotationCamera, -90f, 90f);
+
+        playerCamera.localRotation = Quaternion.Euler(xRotationCamera, 0f, 0f);
+        gameObject.transform.Rotate(Vector3.up * mouseX);
     }
 
     private void Movement()
     {
-        //grounded = controller.collisionFlags & CollisionFlags.Below
+        float x = Input.GetAxis("Horizontal");
+        float z = Input.GetAxis("Vertical");
 
-        if(grounded && playerVelocity.y < 0)
-        {
-            playerVelocity.y = gravity * Time.deltaTime;
-        }
-
-        if((controller.collisionFlags & CollisionFlags.Above) != 0)
-        {
-            playerVelocity.y = 0;
-        }
-
-        Vector3 move = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+        Vector3 move = transform.right * x + transform.forward * z;
         controller.Move(move * Time.deltaTime * playerSpeed);
+    }
 
-        if(Input.GetKeyDown(KeyCode.Space) && grounded)
+    private void Jump()
+    {
+        if (controller.isGrounded && playerVelocity.y <= 0)
         {
-            playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravity);
+            playerVelocity.y = -2f;
         }
 
         playerVelocity.y += gravity * Time.deltaTime;
         controller.Move(playerVelocity * Time.deltaTime);
+
+        if(controller.isGrounded)
+        {
+            if(Input.GetKeyDown(KeyCode.Space))
+            {
+                playerVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            }
+        }
+
+        if ((controller.collisionFlags & CollisionFlags.Above) != 0)
+        {
+            playerVelocity.y = 0;
+        }
+
     }
 
     private void GetComponents()
     {
         controller = GetComponent<CharacterController>();
+        playerCamera = GameObject.Find("Camera").transform;
     }
 }
