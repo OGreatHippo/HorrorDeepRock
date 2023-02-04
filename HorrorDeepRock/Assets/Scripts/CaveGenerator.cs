@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class CaveGenerator : MonoBehaviour
 {
+    private MeshGenerator meshGen;
+
     public int width;
     public int height;
 
@@ -17,6 +19,8 @@ public class CaveGenerator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        meshGen = GetComponent<MeshGenerator>();
+
         GenerateCave();
     }
 
@@ -38,6 +42,8 @@ public class CaveGenerator : MonoBehaviour
         {
             SmoothCave();
         }
+
+        meshGen.GenerateMesh(cave, 1);
     }
 
     private void RandomFillCave()
@@ -112,19 +118,19 @@ public class CaveGenerator : MonoBehaviour
         return wallCount;
     }
 
-    private void OnDrawGizmos()
-    {
-        if(cave != null)
-        {
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    Gizmos.color = (cave[x, y] == 1) ? Color.black : Color.white;
-                    Vector3 pos = new Vector3(-width / 2 + x + 0.5f, 0, -height / 2 + y + 0.5f);
-                    Gizmos.DrawCube(pos, Vector3.one);
-                }
-            }
-        }
-    }
+    //private void OnDrawGizmos()
+    //{
+    //    if(cave != null)
+    //    {
+    //        for (int x = 0; x < width; x++)
+    //        {
+    //            for (int y = 0; y < height; y++)
+    //            {
+    //                Gizmos.color = (cave[x, y] == 1) ? Color.black : Color.white;
+    //                Vector3 pos = new Vector3(-width / 2 + x + 0.5f, 0, -height / 2 + y + 0.5f);
+    //                Gizmos.DrawCube(pos, Vector3.one);
+    //            }
+    //        }
+    //    }
+    //}
 }
