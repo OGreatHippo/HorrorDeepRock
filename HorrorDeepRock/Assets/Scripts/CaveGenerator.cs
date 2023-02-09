@@ -43,7 +43,26 @@ public class CaveGenerator : MonoBehaviour
             SmoothCave();
         }
 
-        meshGen.GenerateMesh(cave, 1);
+        int wallBorderSize = 1;
+        int[,] wallBorder = new int[width + wallBorderSize * 2, height + wallBorderSize * 2];
+
+        for (int x = 0; x < wallBorder.GetLength(0); x++)
+        {
+            for (int y = 0; y < wallBorder.GetLength(1); y++)
+            {
+                if(x >= wallBorderSize && x < width + wallBorderSize && y >= wallBorderSize && y < height + wallBorderSize)
+                {
+                    wallBorder[x, y] = cave[x - wallBorderSize, y - wallBorderSize];
+                }
+
+                else
+                {
+                    wallBorder[x, y] = 1;
+                }
+            }
+        }
+
+        meshGen.GenerateMesh(wallBorder, 1);
     }
 
     private void RandomFillCave()
@@ -117,20 +136,4 @@ public class CaveGenerator : MonoBehaviour
 
         return wallCount;
     }
-
-    //private void OnDrawGizmos()
-    //{
-    //    if(cave != null)
-    //    {
-    //        for (int x = 0; x < width; x++)
-    //        {
-    //            for (int y = 0; y < height; y++)
-    //            {
-    //                Gizmos.color = (cave[x, y] == 1) ? Color.black : Color.white;
-    //                Vector3 pos = new Vector3(-width / 2 + x + 0.5f, 0, -height / 2 + y + 0.5f);
-    //                Gizmos.DrawCube(pos, Vector3.one);
-    //            }
-    //        }
-    //    }
-    //}
 }
