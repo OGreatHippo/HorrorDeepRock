@@ -43,6 +43,8 @@ public class CaveGenerator : MonoBehaviour
             SmoothCave();
         }
 
+        ProcessCave();
+
         int wallBorderSize = 1;
         int[,] wallBorder = new int[width + wallBorderSize * 2, height + wallBorderSize * 2];
 
@@ -63,6 +65,94 @@ public class CaveGenerator : MonoBehaviour
         }
 
         meshGen.GenerateMesh(wallBorder, 1);
+    }
+
+    void ProcessCave()
+    {
+        List<List<TileCoordinate>> wallRegions = GetRegions(1);
+
+        int wallThresholdSize = 50;
+
+        foreach(List<TileCoordinate> wallRegion in wallRegions)
+        {
+            if(wallRegion.Count < wallThresholdSize)
+            {
+                foreach(TileCoordinate tile in wallRegion)
+                {
+                    cave[tile.tileX, tile.tileY] = 0;
+                }
+            }
+        }
+    }
+
+    List<List<TileCoordinate>> GetRegions(int tileType)
+    {
+        List<List<TileCoordinate>> regions = new List<List<TileCoordinate>>();
+
+        int[,] caveFlags = new int[width, height];
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                if(caveFlags[x, y] == 0 && cave[x, y] == tileType)
+                {
+                    List<TileCoordinate> newRegion = GetRegionTiles(x, y);
+
+                    regions.Add(newRegion);
+
+                    foreach(TileCoordinate tile in newRegion)
+                    {
+                        caveFlags[tile.tileX, tile.tileY] = 1;
+                    }
+                }
+            }
+        }
+
+        return regions;
+    }
+
+    List<TileCoordinate> GetRegionTiles(int startX, int startY)
+    {
+        List<TileCoordinate> tiles = new List<TileCoordinate>();
+
+        int[,] caveFlags = new int[width, height];
+
+        int tileType = cave[startX, startY];
+
+        Queue<TileCoordinate> queue = new Queue<TileCoordinate>();
+
+        queue.Enqueue(new TileCoordinate(startX, startY));
+        caveFlags[startX, startY] = 1;
+
+        while(queue.Count > 0)
+        {
+            TileCoordinate tile = queue.Dequeue();
+            tiles.Add(tile);
+
+            for(int x = tile.tileX - 1; x <= tile.tileX + 1; x++)
+            {
+                for (int y = tile.tileY - 1; y <= tile.tileY + 1; y++)
+                {
+                    if(isInRange(x, y) && (y == tile.tileY || x == tile.tileX))
+                    {
+                        if(caveFlags[x, y] == 0 && cave[x, y] == tileType)
+                        {
+                            caveFlags[x, y] = 1;
+
+                            queue.Enqueue(new TileCoordinate(x, y));
+                        }
+                    }
+                }
+            }
+        }
+
+        return tiles;
+    }
+
+    bool isInRange(int x, int y)
+    {
+        return x >= 0 && x < width && y >= 0 && y < height;
     }
 
     private void RandomFillCave()
@@ -119,7 +209,7 @@ public class CaveGenerator : MonoBehaviour
         {
             for (int nY = gridY - 1; nY <= gridY + 1; nY++)
             {
-                if(nX >= 0 && nX < width && nY >= 0 && nY < height)
+                if(isInRange(nX, nY))
                 {
                     if (nX != gridX || nY != gridY)
                     {
@@ -135,5 +225,17 @@ public class CaveGenerator : MonoBehaviour
         }
 
         return wallCount;
+    }
+
+    struct TileCoordinate
+    {
+        public int tileX;
+        public int tileY;
+
+        public TileCoordinate(int x, int y)
+        {
+            tileX = x;
+            tileY = y;
+        }
     }
 }
