@@ -7,9 +7,12 @@ public class PlayerCharacter : MonoBehaviour
     //Movement
     private CharacterController controller;
     private Vector3 playerVelocity;
-    private float playerSpeed = 7.0f;
+    public float playerSpeed = 7.0f;
     private float jumpHeight = 2.5f;
     private float gravity = -9.81f;
+    private float sprintSpeed = 15f;
+    public float stamina = 100f;
+    public bool fatigued = false;
 
     //Camera Movement
     private float mouseSensitivity = 1000f;
@@ -47,6 +50,35 @@ public class PlayerCharacter : MonoBehaviour
     {
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
+
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            if(stamina > 0f && !fatigued)
+            {
+                playerSpeed = sprintSpeed;
+
+                stamina -= 10f * Time.deltaTime;
+            }
+
+            else
+            {
+                playerSpeed = 7.0f;
+
+                fatigued = true;
+            }
+        }
+
+        if(fatigued)
+        {
+            stamina += 10f * Time.deltaTime;
+
+            if(stamina >= 35f)
+            {
+                fatigued = !fatigued;
+            }
+        }
+
+        //stamina += 10f * Time.deltaTime;
 
         Vector3 move = transform.right * x + transform.forward * z;
         controller.Move(move * Time.deltaTime * playerSpeed);

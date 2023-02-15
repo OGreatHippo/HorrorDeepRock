@@ -12,7 +12,7 @@ public class CaveGenerator : MonoBehaviour
     public string seed;
     public bool usingRandomSeed;
 
-    [Range(0, 100)] public int fillPercent;
+    [Range(45, 50)] public int fillPercent;
 
     int[,] cave;
 
@@ -27,7 +27,7 @@ public class CaveGenerator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetMouseButtonDown(0))
+        if(Input.GetKeyDown(KeyCode.P))
         {
             GenerateCave();
         }
