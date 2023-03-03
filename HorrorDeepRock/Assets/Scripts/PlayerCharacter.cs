@@ -51,34 +51,7 @@ public class PlayerCharacter : MonoBehaviour
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
 
-        if (Input.GetKey(KeyCode.LeftShift))
-        {
-            if(stamina > 0f && !fatigued)
-            {
-                playerSpeed = sprintSpeed;
-
-                stamina -= 10f * Time.deltaTime;
-            }
-
-            else
-            {
-                playerSpeed = 7.0f;
-
-                fatigued = true;
-            }
-        }
-
-        if(fatigued)
-        {
-            stamina += 10f * Time.deltaTime;
-
-            if(stamina >= 35f)
-            {
-                fatigued = !fatigued;
-            }
-        }
-
-        //stamina += 10f * Time.deltaTime;
+        Sprint();
 
         Vector3 move = transform.right * x + transform.forward * z;
         controller.Move(move * Time.deltaTime * playerSpeed);
@@ -107,6 +80,38 @@ public class PlayerCharacter : MonoBehaviour
             playerVelocity.y = 0;
         }
 
+    }
+
+    private void Sprint()
+    {
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            if (stamina > 0f && !fatigued)
+            {
+                playerSpeed = sprintSpeed;
+
+                stamina -= 10f * Time.deltaTime;
+            }
+
+            else
+            {
+                playerSpeed = 7.0f;
+
+                fatigued = true;
+            }
+        }
+
+        if (fatigued)
+        {
+            stamina += 10f * Time.deltaTime;
+
+            if (stamina >= 35f)
+            {
+                fatigued = !fatigued;
+            }
+        }
+
+        //stamina += 10f * Time.deltaTime;
     }
 
     private void GetComponents()

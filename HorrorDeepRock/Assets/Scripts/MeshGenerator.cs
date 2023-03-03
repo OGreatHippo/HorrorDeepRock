@@ -6,6 +6,7 @@ public class MeshGenerator : MonoBehaviour
 {
 	public SquareGrid squareGrid;
 	public MeshFilter walls;
+	public MeshCollider wallCollider;
 	List<Vector3> vertices;
 	List<int> triangles;
 
@@ -78,6 +79,8 @@ public class MeshGenerator : MonoBehaviour
 		wallMesh.vertices = wallVertices.ToArray();
 		wallMesh.triangles = wallTriangles.ToArray();
 		walls.mesh = wallMesh;
+
+		wallCollider.sharedMesh = walls.mesh;
     }
 
 	void TriangulateSquare(Square square)

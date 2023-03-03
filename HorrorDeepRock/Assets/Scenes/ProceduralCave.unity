@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 28096510}
   - component: {fileID: 28096508}
   - component: {fileID: 28096509}
+  - component: {fileID: 28096511}
   m_Layer: 0
   m_Name: Walls
   m_TagString: Untagged
@@ -206,6 +207,20 @@ Transform:
   m_Father: {fileID: 1005410006}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!64 &28096511
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 28096507}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 0}
 --- !u!1 &378806186
 GameObject:
   m_ObjectHideFlags: 0
@@ -548,6 +563,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   walls: {fileID: 28096508}
+  wallCollider: {fileID: 28096511}
   wallHeight: 10
 --- !u!23 &1005410008
 MeshRenderer:
@@ -624,7 +640,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5861691388550109802, guid: 9fdf49ae47750e549b366fb487272bf1, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.5
+      value: -7
       objectReference: {fileID: 0}
     - target: {fileID: 5861691388550109802, guid: 9fdf49ae47750e549b366fb487272bf1, type: 3}
       propertyPath: m_LocalPosition.z
