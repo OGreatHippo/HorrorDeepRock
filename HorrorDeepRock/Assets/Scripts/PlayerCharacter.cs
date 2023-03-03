@@ -1,18 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerCharacter : MonoBehaviour
 {
     //Movement
     private CharacterController controller;
     private Vector3 playerVelocity;
-    public float playerSpeed = 7.0f;
+    private float playerSpeed = 7.0f;
+    private float currentSpeed;
     private float jumpHeight = 2.5f;
     private float gravity = -9.81f;
+
+    //Sprinting
     private float sprintSpeed = 15f;
     public float stamina = 100f;
-    public bool fatigued = false;
+    private bool sprinting = false;
+    private bool sprintCD = false;
+    public float sprintTimer = 4.0f;
+    public StaminaSlider staminaSlider;
+    public Image staminaImg;
 
     //Camera Movement
     private float mouseSensitivity = 1000f;
@@ -24,6 +32,7 @@ public class PlayerCharacter : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         GetComponents();
+        staminaSlider.SetMaxStamina(100f);
     }
 
     // Update is called once per frame
@@ -54,7 +63,7 @@ public class PlayerCharacter : MonoBehaviour
         Sprint();
 
         Vector3 move = transform.right * x + transform.forward * z;
-        controller.Move(move * Time.deltaTime * playerSpeed);
+        controller.Move(move * Time.deltaTime * currentSpeed);
     }
 
     private void Jump()
@@ -84,34 +93,63 @@ public class PlayerCharacter : MonoBehaviour
 
     private void Sprint()
     {
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetKeyDown(KeyCode.LeftShift) && !sprintCD)
         {
-            if (stamina > 0f && !fatigued)
-            {
-                playerSpeed = sprintSpeed;
+            sprinting = true;
+        }
 
-                stamina -= 10f * Time.deltaTime;
+        if(Input.GetKeyUp(KeyCode.LeftShift))
+        {
+            sprinting = false;
+        }
+
+        if(sprinting)
+        {
+            if(stamina > 0)
+            {
+                currentSpeed = sprintSpeed;
+                stamina -= 10 * Time.deltaTime;
+
+                staminaSlider.SetStamina(stamina);
             }
 
             else
             {
-                playerSpeed = 7.0f;
+                sprinting = false;
 
-                fatigued = true;
+                sprintCD = true;
+
+                sprintTimer = 4.0f;
             }
         }
 
-        if (fatigued)
+        else
         {
-            stamina += 10f * Time.deltaTime;
+            currentSpeed = playerSpeed;
 
-            if (stamina >= 35f)
+            if(stamina < 100)
             {
-                fatigued = !fatigued;
-            }
+                stamina += 10 * Time.deltaTime;
+
+                staminaSlider.SetStamina(stamina);
+            } 
         }
 
-        //stamina += 10f * Time.deltaTime;
+        if(sprintCD)
+        {
+            sprintTimer -= Time.deltaTime;
+
+            Color fatigueColour = new Color(0.0f, 0.5f, 0.0f);
+
+            staminaImg.color = fatigueColour;
+
+            if(sprintTimer <= 0)
+            {
+                sprintCD = false;
+
+                staminaImg.color = Color.green;
+            }
+        }
     }
 
     private void GetComponents()
