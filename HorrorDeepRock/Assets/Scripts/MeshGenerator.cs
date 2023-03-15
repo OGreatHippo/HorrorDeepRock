@@ -16,8 +16,7 @@ public class MeshGenerator : MonoBehaviour
 
 	public float wallHeight = 10;
 
-
-	public void GenerateMesh(int[,] cave, float squareSize)
+    public void GenerateMesh(int[,] cave, float squareSize)
 	{
 		edges.Clear();
 		checkedVertices.Clear();
