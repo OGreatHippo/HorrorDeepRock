@@ -6,7 +6,9 @@ public class MeshGenerator : MonoBehaviour
 {
 	public SquareGrid squareGrid;
 	public MeshFilter walls;
+	public MeshFilter caveM;
 	public MeshCollider wallCollider;
+
 	List<Vector3> vertices;
 	List<int> triangles;
 
@@ -36,11 +38,24 @@ public class MeshGenerator : MonoBehaviour
 		}
 
 		Mesh mesh = new Mesh();
-		GetComponent<MeshFilter>().mesh = mesh;
+		caveM.mesh = mesh;
 
 		mesh.vertices = vertices.ToArray();
 		mesh.triangles = triangles.ToArray();
 		mesh.RecalculateNormals();
+
+		Vector2[] uvs = new Vector2[vertices.Count];
+
+		int tileAmount = 20;
+		for(int i = 0; i < vertices.Count; i++)
+        {
+			float percentX = Mathf.InverseLerp(-cave.GetLength(0) / 2 * squareSize, cave.GetLength(0) / 2 * squareSize, vertices[i].x) * tileAmount;
+			float percentY = Mathf.InverseLerp(-cave.GetLength(1) / 2 * squareSize, cave.GetLength(1) / 2 * squareSize, vertices[i].z) * tileAmount;
+
+			uvs[i] = new Vector2(percentX, percentY);
+		}
+
+		mesh.uv = uvs;
 
 		CreateWallMesh();
 	}
