@@ -20,7 +20,7 @@ public class Room : IComparable<Room>
 
     }
 
-    public Room(List<TileCoordinate> roomTiles, int[,] cave)
+    public Room(List<TileCoordinate> roomTiles, int[,,] cave)
     {
         tiles = roomTiles;
         roomSize = tiles.Count;
@@ -33,11 +33,14 @@ public class Room : IComparable<Room>
             {
                 for (int y = tile.tileY - 1; y <= tile.tileY - 1; y++)
                 {
-                    if (x == tile.tileX || y == tile.tileY)
+                    for (int z = tile.tileZ - 1; z <= tile.tileZ - 1; z++)
                     {
-                        if (cave[x, y] == 1)
+                        if (x == tile.tileX || y == tile.tileY || z == tile.tileZ)
                         {
-                            edgeTiles.Add(tile);
+                            if (cave[x, y, z] == 1)
+                            {
+                                edgeTiles.Add(tile);
+                            }
                         }
                     }
                 }

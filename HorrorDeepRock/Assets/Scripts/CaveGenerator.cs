@@ -9,13 +9,14 @@ public class CaveGenerator : MonoBehaviour
 
     public int width;
     public int height;
+    public int length;
 
     public string seed;
     public bool usingRandomSeed;
 
     [Range(45, 50)] public int fillPercent;
 
-    int[,] cave;
+    int[,,] cave;
 
     // Start is called before the first frame update
     void Start()
@@ -36,10 +37,10 @@ public class CaveGenerator : MonoBehaviour
 
     private void GenerateCave()
     {
-        cave = new int[width, height];
+        cave = new int[width, height, length];
         RandomFillCave();
 
-        for(int i = 0; i < 5; i++)
+        for (int i = 0; i < 5; i++)
         {
             SmoothCave();
         }
@@ -47,20 +48,23 @@ public class CaveGenerator : MonoBehaviour
         ProcessCave();
 
         int wallBorderSize = 1;
-        int[,] wallBorder = new int[width + wallBorderSize * 2, height + wallBorderSize * 2];
+        int[,,] wallBorder = new int[width + wallBorderSize * 2, height + wallBorderSize * 2, length + wallBorderSize * 2];
 
         for (int x = 0; x < wallBorder.GetLength(0); x++)
         {
             for (int y = 0; y < wallBorder.GetLength(1); y++)
             {
-                if(x >= wallBorderSize && x < width + wallBorderSize && y >= wallBorderSize && y < height + wallBorderSize)
+                for (int z = 0; z < wallBorder.GetLength(2); z++)
                 {
-                    wallBorder[x, y] = cave[x - wallBorderSize, y - wallBorderSize];
-                }
+                    if (x >= wallBorderSize && x < width + wallBorderSize && y >= wallBorderSize && y < height + wallBorderSize && z >= wallBorderSize && z < length + wallBorderSize)
+                    {
+                        wallBorder[x, y, z] = cave[x - wallBorderSize, y - wallBorderSize, z - wallBorderSize];
+                    }
 
-                else
-                {
-                    wallBorder[x, y] = 1;
+                    else
+                    {
+                        wallBorder[x, y, z] = 1;
+                    }
                 }
             }
         }
@@ -80,39 +84,39 @@ public class CaveGenerator : MonoBehaviour
             {
                 foreach(TileCoordinate tile in wallRegion)
                 {
-                    cave[tile.tileX, tile.tileY] = 0;
+                    cave[tile.tileX, tile.tileY, tile.tileZ] = 0;
                 }
             }
         }
 
-        List<List<TileCoordinate>> roomRegions = GetRegions(0);
+        //List<List<TileCoordinate>> roomRegions = GetRegions(0);
 
-        int roomThresholdSize = 50;
+        //int roomThresholdSize = 50;
 
-        List<Room> survivingRooms = new List<Room>();
+        //List<Room> survivingRooms = new List<Room>();
 
-        foreach (List<TileCoordinate> roomRegion in roomRegions)
-        {
-            if (roomRegion.Count < roomThresholdSize)
-            {
-                foreach (TileCoordinate tile in roomRegion)
-                {
-                    cave[tile.tileX, tile.tileY] = 1;
-                }
-            }
+        //foreach (List<TileCoordinate> roomRegion in roomRegions)
+        //{
+        //    if (roomRegion.Count < roomThresholdSize)
+        //    {
+        //        foreach (TileCoordinate tile in roomRegion)
+        //        {
+        //            cave[tile.tileX, tile.tileY, tile.tileZ] = 1;
+        //        }
+        //    }
 
-            else
-            {
-                survivingRooms.Add(new Room(roomRegion, cave));
-            }
-        }
+        //    else
+        //    {
+        //        survivingRooms.Add(new Room(roomRegion, cave));
+        //    }
+        //}
 
-        survivingRooms.Sort();
+        //survivingRooms.Sort();
 
-        survivingRooms[0].isMainRoom = true;
-        survivingRooms[0].isAccessibleFromMainRoom = true;
+        //survivingRooms[0].isMainRoom = true;
+        //survivingRooms[0].isAccessibleFromMainRoom = true;
 
-        ConnectClosestRooms(survivingRooms);
+        //ConnectClosestRooms(survivingRooms);
     }
 
     void ConnectClosestRooms(List<Room> allRooms, bool forceAccessibilityFromMainRoom = false)
@@ -230,14 +234,18 @@ public class CaveGenerator : MonoBehaviour
         {
             for (int y = -r; y <= r; y++)
             {
-                if(x*x + y*y <= r*r)
+                for (int z = -r; z <= r; z++)
                 {
-                    int realX = c.tileX + x;
-                    int realY = c.tileY + y;
-
-                    if(isInRange(realX, realY))
+                    if (x * x + y * y <= r * r)
                     {
-                        cave[realX, realY] = 0;
+                        int realX = c.tileX + x;
+                        int realY = c.tileY + y;
+                        int realZ = c.tileZ + z;
+
+                        if (isInRange(realX, realY, realZ))
+                        {
+                            cave[realX, realY, realZ] = 0;
+                        }
                     }
                 }
             }
@@ -250,59 +258,77 @@ public class CaveGenerator : MonoBehaviour
 
         int x = from.tileX;
         int y = from.tileY;
+        int z = from.tileZ;
 
         int dx = to.tileX - from.tileX;
         int dy = to.tileY - from.tileY;
+        int dz = to.tileZ - from.tileZ;
 
         bool inverted = false;
-        int step = MathF.Sign(dx);
-        int gradientStep = MathF.Sign(dy);
+        int stepX = Math.Sign(dx);
+        int stepY = Math.Sign(dy);
+        int stepZ = Math.Sign(dz);
 
-        int longest = Mathf.Abs(dx);
-        int shortest = Mathf.Abs(dy);
+        int longest = Mathf.Max(Mathf.Abs(dx), Mathf.Max(Mathf.Abs(dy), Mathf.Abs(dz)));
 
-        if(longest < shortest)
+        if (longest == Mathf.Abs(dy))
         {
+            int temp = dy;
+            dy = dx;
+            dx = temp;
             inverted = true;
-
-            longest = Mathf.Abs(dy);
-            shortest = Mathf.Abs(dx);
-
-            step = Math.Sign(dy);
-            gradientStep = Math.Sign(dx);
+        }
+        else if (longest == Mathf.Abs(dz))
+        {
+            int temp = dz;
+            dz = dx;
+            dx = temp;
+            inverted = true;
         }
 
-        int gradientAccumulation = longest / 2; 
+        int gradient1 = 2 * dy - dx;
+        int gradient2 = 2 * dz - dx;
 
-        for(int i = 0; i < longest; i++)
+        int x2 = 0, y2 = 0, z2 = 0;
+        for (int i = 0; i <= longest; i++)
         {
-            line.Add(new TileCoordinate(x, y));
+            line.Add(new TileCoordinate(x, y, z));
 
-            if(inverted)
+            if (inverted)
             {
-                y += step;
+                y2 += stepY;
+                if (gradient1 >= 0)
+                {
+                    x2 += stepX;
+                    gradient1 -= 2 * dx;
+                }
+                if (gradient2 >= 0)
+                {
+                    z2 += stepZ;
+                    gradient2 -= 2 * dx;
+                }
+                gradient1 += 2 * dy;
+                gradient2 += 2 * dz;
+                x = x2;
+                z = z2;
             }
-
             else
             {
-                x += step;
-            }
-
-            gradientAccumulation += shortest;
-
-            if(gradientAccumulation >= longest)
-            {
-                if(inverted)
+                x2 += stepX;
+                if (gradient1 >= 0)
                 {
-                    x += gradientStep;
+                    y2 += stepY;
+                    gradient1 -= 2 * dx;
                 }
-
-                else
+                if (gradient2 >= 0)
                 {
-                    y += gradientStep;
+                    z2 += stepZ;
+                    gradient2 -= 2 * dx;
                 }
-
-                gradientAccumulation -= longest;
+                gradient1 += 2 * dy;
+                gradient2 += 2 * dz;
+                x = x2;
+                y = y2;
             }
         }
 
@@ -318,21 +344,24 @@ public class CaveGenerator : MonoBehaviour
     {
         List<List<TileCoordinate>> regions = new List<List<TileCoordinate>>();
 
-        int[,] caveFlags = new int[width, height];
+        int[,,] caveFlags = new int[width, height, length];
 
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
-                if(caveFlags[x, y] == 0 && cave[x, y] == tileType)
+                for (int z = 0; z < length; z++)
                 {
-                    List<TileCoordinate> newRegion = GetRegionTiles(x, y);
-
-                    regions.Add(newRegion);
-
-                    foreach(TileCoordinate tile in newRegion)
+                    if (caveFlags[x, y, z] == 0 && cave[x, y, z] == tileType)
                     {
-                        caveFlags[tile.tileX, tile.tileY] = 1;
+                        List<TileCoordinate> newRegion = GetRegionTiles(x, y, z);
+
+                        regions.Add(newRegion);
+
+                        foreach (TileCoordinate tile in newRegion)
+                        {
+                            caveFlags[tile.tileX, tile.tileY, tile.tileZ] = 1;
+                        }
                     }
                 }
             }
@@ -341,18 +370,18 @@ public class CaveGenerator : MonoBehaviour
         return regions;
     }
 
-    List<TileCoordinate> GetRegionTiles(int startX, int startY)
+    List<TileCoordinate> GetRegionTiles(int startX, int startY, int startZ)
     {
         List<TileCoordinate> tiles = new List<TileCoordinate>();
 
-        int[,] caveFlags = new int[width, height];
+        int[,,] caveFlags = new int[width, height, length];
 
-        int tileType = cave[startX, startY];
+        int tileType = cave[startX, startY, startZ];
 
         Queue<TileCoordinate> queue = new Queue<TileCoordinate>();
 
-        queue.Enqueue(new TileCoordinate(startX, startY));
-        caveFlags[startX, startY] = 1;
+        queue.Enqueue(new TileCoordinate(startX, startY, startZ));
+        caveFlags[startX, startY, startZ] = 1;
 
         while(queue.Count > 0)
         {
@@ -363,13 +392,16 @@ public class CaveGenerator : MonoBehaviour
             {
                 for (int y = tile.tileY - 1; y <= tile.tileY + 1; y++)
                 {
-                    if(isInRange(x, y) && (y == tile.tileY || x == tile.tileX))
+                    for (int z = tile.tileZ - 1; z <= tile.tileZ + 1; z++)
                     {
-                        if(caveFlags[x, y] == 0 && cave[x, y] == tileType)
+                        if (isInRange(x, y, z) && (y == tile.tileZ || x == tile.tileX || z == tile.tileZ))
                         {
-                            caveFlags[x, y] = 1;
+                            if (caveFlags[x, y, z] == 0 && cave[x, y, z] == tileType)
+                            {
+                                caveFlags[x, y, z] = 1;
 
-                            queue.Enqueue(new TileCoordinate(x, y));
+                                queue.Enqueue(new TileCoordinate(x, y, z));
+                            }
                         }
                     }
                 }
@@ -379,9 +411,9 @@ public class CaveGenerator : MonoBehaviour
         return tiles;
     }
 
-    bool isInRange(int x, int y)
+    bool isInRange(int x, int y, int z)
     {
-        return x >= 0 && x < width && y >= 0 && y < height;
+        return x >= 0 && x < width && y >= 0 && y < height && z >= 0 && z < length;
     }
 
     private void RandomFillCave()
@@ -397,14 +429,17 @@ public class CaveGenerator : MonoBehaviour
         {
             for(int y = 0; y < height; y++)
             {
-                if (x == 0 || x == width - 1 || y == 0 || y == height - 1)
+                for (int z = 0; z < length; z++)
                 {
-                    cave[x, y] = 1;
-                }
-                else
-                {
-                    cave[x, y] = (randomSeed.Next(0, 100) < fillPercent) ? 1 : 0;
-                }
+                    if (x == 0 || x == width - 1 || y == 0 || y == height - 1 || z == 0 || z == length - 1)
+                    {
+                        cave[x, y, z] = 1;
+                    }
+                    else
+                    {
+                        cave[x, y, z] = (randomSeed.Next(0, 100) < fillPercent) ? 1 : 0;
+                    }
+                } 
             }
         }
     }
@@ -415,22 +450,25 @@ public class CaveGenerator : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                int neighbourWalls = GetWallCount(x, y);
-
-                if (neighbourWalls > 4)
+                for (int z = 0; z < length; z++)
                 {
-                    cave[x, y] = 1;
-                }
+                    int neighbourWalls = GetWallCount(x, y, z);
 
-                else if(neighbourWalls < 4)
-                {
-                    cave[x, y] = 0;
+                    if (neighbourWalls > 4)
+                    {
+                        cave[x, y, z] = 1;
+                    }
+
+                    else if (neighbourWalls < 4)
+                    {
+                        cave[x, y, z] = 0;
+                    }
                 }
             }
         }
     }
 
-    private int GetWallCount(int gridX, int gridY)
+    private int GetWallCount(int gridX, int gridY, int gridZ)
     {
         int wallCount = 0;
 
@@ -438,17 +476,20 @@ public class CaveGenerator : MonoBehaviour
         {
             for (int nY = gridY - 1; nY <= gridY + 1; nY++)
             {
-                if(isInRange(nX, nY))
+                for (int nZ = gridZ - 1; nZ <= gridZ + 1; nZ++)
                 {
-                    if (nX != gridX || nY != gridY)
+                    if (isInRange(nX, nY, nZ))
                     {
-                        wallCount += cave[nX, nY];
+                        if (nX != gridX || nY != gridY)
+                        {
+                            wallCount += cave[nX, nY, nZ];
+                        }
                     }
-                } 
-                
-                else
-                {
-                    wallCount++;
+
+                    else
+                    {
+                        wallCount++;
+                    }
                 }
             }
         }

@@ -881,11 +881,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f919948b437b8140a608ad3d823c742, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 380
-  height: 240
+  width: 70
+  height: 40
+  length: 70
   seed: 
   usingRandomSeed: 1
-  fillPercent: 50
+  fillPercent: 45
 --- !u!4 &1005410006
 Transform:
   m_ObjectHideFlags: 0
