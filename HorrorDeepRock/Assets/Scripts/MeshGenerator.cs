@@ -12,7 +12,7 @@ public class MeshGenerator : MonoBehaviour
 	List<Vector3> vertices;
 	List<int> triangles;
 
-	Dictionary<int, List<Triangle>> triangleDictionary = new Dictionary<int, List<Triangle>>();
+	Dictionary<int, List<MeshTriangle>> triangleDictionary = new Dictionary<int, List<MeshTriangle>>();
 	List<List<int>> edges = new List<List<int>>();
 	HashSet<int> checkedVertices = new HashSet<int>();
 
@@ -97,7 +97,7 @@ public class MeshGenerator : MonoBehaviour
 		wallCollider.sharedMesh = walls.mesh;
     }
 
-	void TriangulateSquare(Square square)
+	void TriangulateSquare(SquareConfiguration square)
 	{
 		switch (square.configuration)
 		{
@@ -164,7 +164,7 @@ public class MeshGenerator : MonoBehaviour
 
 	}
 
-	void MeshFromPoints(params Node[] points)
+	void MeshFromPoints(params CentreNode[] points)
 	{
 		AssignVertices(points);
 
@@ -189,7 +189,7 @@ public class MeshGenerator : MonoBehaviour
 		}
 	}
 
-	void AssignVertices(Node[] points)
+	void AssignVertices(CentreNode[] points)
 	{
 		for (int i = 0; i < points.Length; i++)
 		{
@@ -201,19 +201,19 @@ public class MeshGenerator : MonoBehaviour
 		}
 	}
 
-	void CreateTriangle(Node a, Node b, Node c)
+	void CreateTriangle(CentreNode a, CentreNode b, CentreNode c)
 	{
 		triangles.Add(a.vertexIndex);
 		triangles.Add(b.vertexIndex);
 		triangles.Add(c.vertexIndex);
 
-		Triangle triangle = new Triangle(a.vertexIndex, b.vertexIndex, c.vertexIndex);
+		MeshTriangle triangle = new MeshTriangle(a.vertexIndex, b.vertexIndex, c.vertexIndex);
 		AddTriangleToDictionary(triangle.vertextIndexA, triangle);
 		AddTriangleToDictionary(triangle.vertextIndexB, triangle);
 		AddTriangleToDictionary(triangle.vertextIndexC, triangle);
 	}
 
-	private void AddTriangleToDictionary(int vertexIndexKey, Triangle triangle)
+	private void AddTriangleToDictionary(int vertexIndexKey, MeshTriangle triangle)
     {
 		if(triangleDictionary.ContainsKey(vertexIndexKey))
         {
@@ -222,7 +222,7 @@ public class MeshGenerator : MonoBehaviour
 
 		else
         {
-			List<Triangle> triangleList = new List<Triangle>();
+			List<MeshTriangle> triangleList = new List<MeshTriangle>();
 			triangleList.Add(triangle);
 			triangleDictionary.Add(vertexIndexKey, triangleList);
         }
@@ -265,11 +265,11 @@ public class MeshGenerator : MonoBehaviour
 
 	private int GetConnectedVertexEdge(int vertexIndex)
     {
-		List<Triangle> trianglesContainingVertex = triangleDictionary[vertexIndex];
+		List<MeshTriangle> trianglesContainingVertex = triangleDictionary[vertexIndex];
 
 		for(int i = 0; i < trianglesContainingVertex.Count; i++)
         {
-			Triangle triangle = trianglesContainingVertex[i];
+			MeshTriangle triangle = trianglesContainingVertex[i];
 
 			for(int j = 0; j < 3; j++)
             {
@@ -290,7 +290,7 @@ public class MeshGenerator : MonoBehaviour
 
 	private bool IsTriangleVertexEdge(int vertexA, int vertexB)
     {
-		List<Triangle> trianglesContainingVertexA = triangleDictionary[vertexA];
+		List<MeshTriangle> trianglesContainingVertexA = triangleDictionary[vertexA];
 		int sharedTriangleCount = 0;
 
 		for(int i = 0; i< trianglesContainingVertexA.Count; i++)
@@ -307,138 +307,5 @@ public class MeshGenerator : MonoBehaviour
 
 		return sharedTriangleCount == 1;
     }
-
-	struct Triangle
-    {
-		public int vertextIndexA;
-		public int vertextIndexB;
-		public int vertextIndexC;
-
-		int[] vertices;
-
-		public Triangle(int a, int b, int c)
-        {
-			vertextIndexA = a;
-			vertextIndexB = b;
-			vertextIndexC = c;
-
-			vertices = new int[3];
-			vertices[0] = a;
-			vertices[1] = b;
-			vertices[2] = c;
-		}
-
-		public int this[int i]
-        {
-			get
-            {
-				return vertices[i];
-            }
-        }
-
-		public bool Contains(int vertexIndex)
-        {
-			return vertexIndex == vertextIndexA || vertexIndex == vertextIndexB || vertexIndex == vertextIndexC;
-        }
-	}
-
-	public class SquareGrid
-	{
-		public Square[,] squares;
-
-		public SquareGrid(int[,] cave, float squareSize)
-		{
-			int nodeCountX = cave.GetLength(0);
-			int nodeCountY = cave.GetLength(1);
-			float mapWidth = nodeCountX * squareSize;
-			float mapHeight = nodeCountY * squareSize;
-
-			ControlNode[,] controlNodes = new ControlNode[nodeCountX, nodeCountY];
-
-			for (int x = 0; x < nodeCountX; x++)
-			{
-				for (int y = 0; y < nodeCountY; y++)
-				{
-					Vector3 pos = new Vector3(-mapWidth / 2 + x * squareSize + squareSize / 2, 0, -mapHeight / 2 + y * squareSize + squareSize / 2);
-					controlNodes[x, y] = new ControlNode(pos, cave[x, y] == 1, squareSize);
-				}
-			}
-
-			squares = new Square[nodeCountX - 1, nodeCountY - 1];
-			for (int x = 0; x < nodeCountX - 1; x++)
-			{
-				for (int y = 0; y < nodeCountY - 1; y++)
-				{
-					squares[x, y] = new Square(controlNodes[x, y + 1], controlNodes[x + 1, y + 1], controlNodes[x + 1, y], controlNodes[x, y]);
-				}
-			}
-
-		}
-	}
-
-	public class Square
-	{
-		public ControlNode topLeft, topRight, bottomRight, bottomLeft;
-		public Node centreTop, centreRight, centreBottom, centreLeft;
-		public int configuration;
-
-		public Square(ControlNode _topLeft, ControlNode _topRight, ControlNode _bottomRight, ControlNode _bottomLeft)
-		{
-			topLeft = _topLeft;
-			topRight = _topRight;
-			bottomRight = _bottomRight;
-			bottomLeft = _bottomLeft;
-
-			centreTop = topLeft.right;
-			centreRight = bottomRight.above;
-			centreBottom = bottomLeft.right;
-			centreLeft = bottomLeft.above;
-
-			if (topLeft.active)
-            {
-				configuration += 8;
-			}
-				
-			if (topRight.active)
-            {
-				configuration += 4;
-			}
-				
-			if (bottomRight.active)
-            {
-				configuration += 2;
-			}
-				
-			if (bottomLeft.active)
-            {
-				configuration += 1;
-			}	
-		}
-	}
-
-	public class Node
-	{
-		public Vector3 position;
-		public int vertexIndex = -1;
-
-		public Node(Vector3 _pos)
-		{
-			position = _pos;
-		}
-	}
-
-	public class ControlNode : Node
-	{
-		public bool active;
-		public Node above, right;
-
-		public ControlNode(Vector3 _pos, bool _active, float squareSize) : base(_pos)
-		{
-			active = _active;
-			above = new Node(position + Vector3.forward * squareSize / 2f);
-			right = new Node(position + Vector3.right * squareSize / 2f);
-		}
-
-	}
 }
 
