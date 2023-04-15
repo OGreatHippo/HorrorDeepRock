@@ -6,16 +6,15 @@ public class TileCoordinate
 {
     public int tileX;
     public int tileY;
-    public int tileZ;
+
     public TileCoordinate()
     {
 
     }
 
-    public TileCoordinate(int x, int y, int z)
+    public TileCoordinate(int x, int y)
     {
         tileX = x;
         tileY = y;
-        tileZ = z;
     }
 }

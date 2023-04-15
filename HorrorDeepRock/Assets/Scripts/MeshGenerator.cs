@@ -18,7 +18,7 @@ public class MeshGenerator : MonoBehaviour
 
 	public float wallHeight = 10;
 
-    public void GenerateMesh(int[,,] cave, float squareSize)
+    public void GenerateMesh(int[,] cave, float squareSize)
 	{
 		edges.Clear();
 		checkedVertices.Clear();
@@ -33,10 +33,7 @@ public class MeshGenerator : MonoBehaviour
 		{
 			for (int y = 0; y < squareGrid.squares.GetLength(1); y++)
 			{
-				for (int z = 0; z < squareGrid.squares.GetLength(2); z++)
-				{
-					TriangulateSquare(squareGrid.squares[x, y, z]);
-				}
+				TriangulateSquare(squareGrid.squares[x, y]);
 			}
 		}
 
@@ -50,17 +47,13 @@ public class MeshGenerator : MonoBehaviour
 		Vector2[] uvs = new Vector2[vertices.Count];
 
 		int tileAmount = 20;
-		for (int i = 0; i < vertices.Count; i++)
-		{
-			float u = Mathf.InverseLerp(-cave.GetLength(0) / 2 * squareSize, cave.GetLength(0) / 2 * squareSize, vertices[i].x) * tileAmount;
-			float v = Mathf.InverseLerp(-cave.GetLength(1) / 2 * squareSize, cave.GetLength(1) / 2 * squareSize, vertices[i].z) * tileAmount;
+		for(int i = 0; i < vertices.Count; i++)
+        {
+			float percentX = Mathf.InverseLerp(-cave.GetLength(0) / 2 * squareSize, cave.GetLength(0) / 2 * squareSize, vertices[i].x) * tileAmount;
+			float percentY = Mathf.InverseLerp(-cave.GetLength(1) / 2 * squareSize, cave.GetLength(1) / 2 * squareSize, vertices[i].z) * tileAmount;
 
-			float y = vertices[i].y;
-			v += y * 0.1f;
-
-			uvs[i] = new Vector2(u, v);
+			uvs[i] = new Vector2(percentX, percentY);
 		}
-
 
 		mesh.uv = uvs;
 
