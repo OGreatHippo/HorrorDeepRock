@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class MeshGenerator : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class MeshGenerator : MonoBehaviour
 	public MeshCollider wallCollider;
 	public MeshCollider floorCollider;
 	public MeshCollider roofCollider;
+
+	public NavMeshSurface navMesh;
 
 	List<Vector3> vertices;
 	List<int> triangles;
@@ -183,6 +186,8 @@ public class MeshGenerator : MonoBehaviour
 		floorMesh.RecalculateNormals();
 
 		floor.mesh = floorMesh;
+
+		navMesh.BuildNavMesh();
 
 		floorCollider.sharedMesh = floor.mesh;
 	}
