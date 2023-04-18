@@ -6,8 +6,12 @@ public class MeshGenerator : MonoBehaviour
 {
 	public SquareGrid squareGrid;
 	public MeshFilter walls;
+	public MeshFilter floor;
+	public MeshFilter roof;
 	public MeshFilter caveM;
 	public MeshCollider wallCollider;
+	public MeshCollider floorCollider;
+	public MeshCollider roofCollider;
 
 	List<Vector3> vertices;
 	List<int> triangles;
@@ -17,6 +21,8 @@ public class MeshGenerator : MonoBehaviour
 	HashSet<int> checkedVertices = new HashSet<int>();
 
 	public float wallHeight = 10;
+
+	public Material caveMat;
 
     public void GenerateMesh(int[,] cave, float squareSize)
 	{
@@ -46,7 +52,7 @@ public class MeshGenerator : MonoBehaviour
 
 		Vector2[] uvs = new Vector2[vertices.Count];
 
-		int tileAmount = 20;
+		int tileAmount = 50;
 		for(int i = 0; i < vertices.Count; i++)
         {
 			float percentX = Mathf.InverseLerp(-cave.GetLength(0) / 2 * squareSize, cave.GetLength(0) / 2 * squareSize, vertices[i].x) * tileAmount;
@@ -57,10 +63,10 @@ public class MeshGenerator : MonoBehaviour
 
 		mesh.uv = uvs;
 
-		CreateWallMesh();
+		CreateWallMesh(cave, 1);
 	}
 
-	private void CreateWallMesh()
+	private void CreateWallMesh(int[,] cave, float squareSize)
     {
 		CalculateMeshEdge();
 
@@ -69,6 +75,9 @@ public class MeshGenerator : MonoBehaviour
 		List<int> wallTriangles = new List<int>();
 
 		Mesh wallMesh = new Mesh();
+
+		float minY = 0.1f;
+		float maxY = 0.5f;
 
 		foreach(List<int> edge in edges)
         {
@@ -92,10 +101,138 @@ public class MeshGenerator : MonoBehaviour
 
 		wallMesh.vertices = wallVertices.ToArray();
 		wallMesh.triangles = wallTriangles.ToArray();
+
+		//Vector2[] uvs = new Vector2[wallVertices.Count];
+
+		//float textureScale = walls.gameObject.GetComponentInChildren<MeshRenderer>().material.mainTextureScale.x;
+		//float increment = (textureScale / cave.GetLength(0));
+
+		//float[] uvEntries = new float[] { 0.5f, increment };
+
+		//int tileAmount = 50;
+		//for (int i = 0; i < wallVertices.Count; i++)
+		//{
+		//	float percentY = Mathf.InverseLerp((-wallHeight) * squareSize, 0, wallMesh.vertices[i].y) * tileAmount * (wallHeight / cave.GetLength(0));
+		//	uvs[i] = new Vector2(uvEntries[i % 2], percentY);
+		//}
+
+		//wallMesh.uv = uvs;
+
+		wallMesh.RecalculateNormals();
+
 		walls.mesh = wallMesh;
 
 		wallCollider.sharedMesh = walls.mesh;
-    }
+
+		walls.GetComponent<MeshRenderer>().material = caveMat;
+
+        CreateFloorMesh(cave, minY, 1);
+		CreateRoofMesh(cave, maxY, 1);
+	}
+
+	private void CreateFloorMesh(int[,] cave, float _minY, float squareSize)
+    {
+		List<Vector3> floorVertices = new List<Vector3>();
+
+		List<int> floorTriangles = new List<int>();
+
+		Mesh floorMesh = new Mesh();
+
+		Vector3 positionOffset = new Vector3(-(cave.GetLength(0) / 2f), 0, -(cave.GetLength(1) / 2f));
+
+		int startIndex = floorVertices.Count;
+		floorVertices.Add(new Vector3(0f, _minY, 0f) + positionOffset);
+		floorVertices.Add(new Vector3(cave.GetLength(0), _minY, 0f) + positionOffset);
+		floorVertices.Add(new Vector3(0f, _minY, cave.GetLength(1)) + positionOffset);
+		floorVertices.Add(new Vector3(cave.GetLength(0), _minY, cave.GetLength(1)) + positionOffset);
+
+		floorTriangles.Add(startIndex + 0);
+		floorTriangles.Add(startIndex + 2);
+		floorTriangles.Add(startIndex + 1);
+
+		floorTriangles.Add(startIndex + 1);
+		floorTriangles.Add(startIndex + 2);
+		floorTriangles.Add(startIndex + 3);
+
+		float noiseScale = 0.1f;
+
+		for (int i = 0; i < floorVertices.Count; i++)
+		{
+			float x = floorVertices[i].x * noiseScale;
+			float z = floorVertices[i].z * noiseScale;
+			float y = Mathf.PerlinNoise(x, z) * 2f;
+			floorVertices[i] = floorVertices[i] + new Vector3(0f, y, 0f);
+		}
+
+		floorMesh.vertices = floorVertices.ToArray();
+		floorMesh.triangles = floorTriangles.ToArray();
+
+		Vector2[] uvs = new Vector2[floorVertices.Count];
+
+		int tileAmount = 50;
+		for (int i = 0; i < floorVertices.Count; i++)
+		{
+			float percentX = Mathf.InverseLerp(-cave.GetLength(0) / 2 * squareSize, cave.GetLength(0) / 2 * squareSize, floorVertices[i].x) * tileAmount;
+			float percentY = Mathf.InverseLerp(-cave.GetLength(1) / 2 * squareSize, cave.GetLength(1) / 2 * squareSize, floorVertices[i].z) * tileAmount;
+
+			uvs[i] = new Vector2(percentX, percentY);
+		}
+
+		floorMesh.uv = uvs;
+
+		floorMesh.RecalculateNormals();
+
+		floor.mesh = floorMesh;
+
+		floorCollider.sharedMesh = floor.mesh;
+	}
+
+	private void CreateRoofMesh(int[,] cave, float _maxY, float squareSize)
+	{
+		List<Vector3> roofVertices = new List<Vector3>();
+
+		List<int> roofTriangles = new List<int>();
+
+		Mesh roofMesh = new Mesh();
+
+		Vector3 positionOffset = new Vector3(-(cave.GetLength(0) / 2f), 0, -(cave.GetLength(1) / 2f));
+
+		int startIndex = roofVertices.Count;
+		roofVertices.Add(new Vector3(0f, _maxY, 0f) + positionOffset);
+		roofVertices.Add(new Vector3(cave.GetLength(0), _maxY, 0f) + positionOffset);
+		roofVertices.Add(new Vector3(0f, _maxY, cave.GetLength(1)) + positionOffset);
+		roofVertices.Add(new Vector3(cave.GetLength(0), _maxY, cave.GetLength(1)) + positionOffset);
+
+		roofTriangles.Add(startIndex + 0);
+		roofTriangles.Add(startIndex + 2);
+		roofTriangles.Add(startIndex + 1);
+
+		roofTriangles.Add(startIndex + 1);
+		roofTriangles.Add(startIndex + 2);
+		roofTriangles.Add(startIndex + 3);
+
+		roofMesh.vertices = roofVertices.ToArray();
+		roofMesh.triangles = roofTriangles.ToArray();
+
+		Vector2[] uvs = new Vector2[roofVertices.Count];
+
+		int tileAmount = 50;
+		for (int i = 0; i < roofVertices.Count; i++)
+		{
+			float percentX = Mathf.InverseLerp(-cave.GetLength(0) / 2 * squareSize, cave.GetLength(0) / 2 * squareSize, roofVertices[i].x) * tileAmount;
+			float percentY = Mathf.InverseLerp(-cave.GetLength(1) / 2 * squareSize, cave.GetLength(1) / 2 * squareSize, roofVertices[i].z) * tileAmount;
+
+			uvs[i] = new Vector2(percentX, percentY);
+		}
+
+		roofMesh.uv = uvs;
+
+		roofMesh.RecalculateNormals();
+
+		roof.mesh = roofMesh;
+
+		roofCollider.sharedMesh = roof.mesh;	
+	}
 
 	void TriangulateSquare(SquareConfiguration square)
 	{

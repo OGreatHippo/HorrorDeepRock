@@ -8,17 +8,17 @@ public class PlayerCharacter : MonoBehaviour
     //Movement
     private CharacterController controller;
     private Vector3 playerVelocity;
-    private float playerSpeed = 7.0f;
+    private float playerSpeed = 5.0f;
     private float currentSpeed;
     private float jumpHeight = 2.5f;
     private float gravity = -9.81f;
 
     //Sprinting
-    private float sprintSpeed = 15f;
-    public float stamina = 100f;
+    private float sprintSpeed = 10f;
+    private float stamina = 100f;
     private bool sprinting = false;
     private bool sprintCD = false;
-    public float sprintTimer = 4.0f;
+    private float sprintTimer = 4.0f;
     public StaminaSlider staminaSlider;
     public Image staminaImg;
 
