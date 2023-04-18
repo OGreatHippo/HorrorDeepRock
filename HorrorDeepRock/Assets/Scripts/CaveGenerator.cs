@@ -18,6 +18,7 @@ public class CaveGenerator : MonoBehaviour
     int[,] cave;
 
     public GameObject Player;
+    private bool playerSpawned;
 
     // Start is called before the first frame update
     void Start()
@@ -406,15 +407,10 @@ public class CaveGenerator : MonoBehaviour
                     cave[x, y] = (randomSeed.Next(0, 100) < fillPercent) ? 1 : 0;
                 }
 
-                for(int i = 0; i < cave.GetLength(0); i++)
+                if(cave[x, y] == 0 && !playerSpawned)
                 {
-                    for (int j = 0; j < cave.GetLength(1); j++)
-                    {
-                        if(cave[i, j] == 0)
-                        {
-                            Instantiate(Player, new Vector3(i, -10, j), Quaternion.identity);
-                        }
-                    }
+                    Instantiate(Player, new Vector3(x, -10, y), Quaternion.identity);
+                    playerSpawned = true;
                 }
             }
         }
