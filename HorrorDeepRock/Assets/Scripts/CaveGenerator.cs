@@ -409,7 +409,7 @@ public class CaveGenerator : MonoBehaviour
 
                 if(cave[x, y] == 0 && !playerSpawned)
                 {
-                    Instantiate(Player, new Vector3(x, -10, y), Quaternion.identity);
+                    Instantiate(Player, new Vector3(x, -5, y), Quaternion.identity);
                     playerSpawned = true;
                 }
             }
