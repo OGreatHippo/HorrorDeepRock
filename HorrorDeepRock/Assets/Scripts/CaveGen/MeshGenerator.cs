@@ -26,8 +26,9 @@ public class MeshGenerator : MonoBehaviour
 	public float wallHeight = 10;
 
 	public Material caveMat;
+	private int tileAmount = 50;
 
-    public void GenerateMesh(int[,] cave, float squareSize)
+	public void GenerateMesh(int[,] cave, float squareSize)
 	{
 		edges.Clear();
 		checkedVertices.Clear();
@@ -55,7 +56,6 @@ public class MeshGenerator : MonoBehaviour
 
 		Vector2[] uvs = new Vector2[vertices.Count];
 
-		int tileAmount = 50;
 		for(int i = 0; i < vertices.Count; i++)
         {
 			float percentX = Mathf.InverseLerp(-cave.GetLength(0) / 2 * squareSize, cave.GetLength(0) / 2 * squareSize, vertices[i].x) * tileAmount;
@@ -105,23 +105,26 @@ public class MeshGenerator : MonoBehaviour
 		wallMesh.vertices = wallVertices.ToArray();
 		wallMesh.triangles = wallTriangles.ToArray();
 
-		//Vector2[] uvs = new Vector2[wallVertices.Count];
+		/* this part slows down generation due to it looping thorugh all vertices and adding the texture to it, could be improved by grouping each length of wall together and pasting one big texture over it instead, also needs texture to tile on the y and not just x */
 
-		//float textureScale = walls.gameObject.GetComponentInChildren<MeshRenderer>().material.mainTextureScale.x;
-		//float increment = (textureScale / cave.GetLength(0));
+        //Vector2[] uvs = new Vector2[wallVertices.Count];
 
-		//float[] uvEntries = new float[] { 0.5f, increment };
+        //float textureScale = caveMat.mainTextureScale.x;
+        //float increment = (textureScale / cave.GetLength(0));
 
-		//int tileAmount = 50;
-		//for (int i = 0; i < wallVertices.Count; i++)
-		//{
-		//	float percentY = Mathf.InverseLerp((-wallHeight) * squareSize, 0, wallMesh.vertices[i].y) * tileAmount * (wallHeight / cave.GetLength(0));
-		//	uvs[i] = new Vector2(uvEntries[i % 2], percentY);
-		//}
+        //float[] uvEntries = new float[] { 0.5f, increment };
 
-		//wallMesh.uv = uvs;
+        //for (int i = 0; i < wallVertices.Count; i++)
+        //{
+        //    float percentY = Mathf.InverseLerp((-wallHeight) * squareSize, 0, wallMesh.vertices[i].y) * (wallHeight / cave.GetLength(0)) * tileAmount;
+        //    uvs[i] = new Vector2(uvEntries[i % 2], percentY);
+        //}
 
-		wallMesh.RecalculateNormals();
+        //wallMesh.uv = uvs;
+
+		/* end of part that needs improvement */
+
+        wallMesh.RecalculateNormals();
 
 		walls.mesh = wallMesh;
 
@@ -143,28 +146,74 @@ public class MeshGenerator : MonoBehaviour
 
 		Vector3 positionOffset = new Vector3(-(cave.GetLength(0) / 2f), 0, -(cave.GetLength(1) / 2f));
 
-		int startIndex = floorVertices.Count;
-		floorVertices.Add(new Vector3(0f, _minY, 0f) + positionOffset);
-		floorVertices.Add(new Vector3(cave.GetLength(0), _minY, 0f) + positionOffset);
-		floorVertices.Add(new Vector3(0f, _minY, cave.GetLength(1)) + positionOffset);
-		floorVertices.Add(new Vector3(cave.GetLength(0), _minY, cave.GetLength(1)) + positionOffset);
+		int blockSize = 50;
+		int numBlocksX = cave.GetLength(0) / blockSize;
+		int numBlocksZ = cave.GetLength(1) / blockSize;
 
-		floorTriangles.Add(startIndex + 0);
-		floorTriangles.Add(startIndex + 2);
-		floorTriangles.Add(startIndex + 1);
-
-		floorTriangles.Add(startIndex + 1);
-		floorTriangles.Add(startIndex + 2);
-		floorTriangles.Add(startIndex + 3);
-
-		float noiseScale = 0.1f;
-
-		for (int i = 0; i < floorVertices.Count; i++)
+		// Loop through each block and generate vertices and triangles
+		for (int blockX = 0; blockX < numBlocksX; blockX++)
 		{
-			float x = floorVertices[i].x * noiseScale;
-			float z = floorVertices[i].z * noiseScale;
-			float y = Mathf.PerlinNoise(x, z) * 2f;
-			floorVertices[i] = floorVertices[i] + new Vector3(0f, y, 0f);
+			for (int blockZ = 0; blockZ < numBlocksZ; blockZ++)
+			{
+				int lastBlockSizeX = cave.GetLength(0) % blockSize;
+				int lastBlockSizeZ = cave.GetLength(1) % blockSize;
+				if (lastBlockSizeX != 0)
+				{
+					// Adjust the width of the last block
+					int startX = numBlocksX * blockSize;
+					int endX = startX + lastBlockSizeX;
+					for (int x = startX; x <= endX; x++)
+					{
+						for (int z = 0; z <= blockSize; z++)
+						{
+							Vector3 vertex = new Vector3(x * squareSize, _minY, (blockZ * blockSize + z) * squareSize) + positionOffset;
+							floorVertices.Add(vertex);
+						}
+					}
+				}
+				if (lastBlockSizeZ != 0)
+				{
+					// Adjust the depth of the last block
+					int startZ = numBlocksZ * blockSize;
+					int endZ = startZ + lastBlockSizeZ;
+					for (int x = 0; x <= blockSize; x++)
+					{
+						for (int z = startZ; z <= endZ; z++)
+						{
+							Vector3 vertex = new Vector3((blockX * blockSize + x) * squareSize, _minY, z * squareSize) + positionOffset;
+							floorVertices.Add(vertex);
+						}
+					}
+				}
+
+				int startIndex = floorVertices.Count;
+
+				// Generate block vertices
+				for (int x = 0; x <= blockSize; x++)
+				{
+					for (int z = 0; z <= blockSize; z++)
+					{
+						Vector3 vertex = new Vector3((blockX * blockSize + x) * squareSize, _minY, (blockZ * blockSize + z) * squareSize) + positionOffset;
+						floorVertices.Add(vertex);
+					}
+				}
+
+				// Generate block triangles
+				for (int x = 0; x < blockSize; x++)
+				{
+					for (int z = 0; z < blockSize; z++)
+					{
+						int vertexIndex = (x * (blockSize + 1)) + z + startIndex;
+						int nextVertexIndex = vertexIndex + blockSize + 1;
+						floorTriangles.Add(vertexIndex);
+						floorTriangles.Add(nextVertexIndex);
+						floorTriangles.Add(vertexIndex + 1);
+						floorTriangles.Add(vertexIndex + 1);
+						floorTriangles.Add(nextVertexIndex);
+						floorTriangles.Add(nextVertexIndex + 1);
+					}
+				}
+			}
 		}
 
 		floorMesh.vertices = floorVertices.ToArray();
@@ -172,24 +221,47 @@ public class MeshGenerator : MonoBehaviour
 
 		Vector2[] uvs = new Vector2[floorVertices.Count];
 
-		int tileAmount = 50;
-		for (int i = 0; i < floorVertices.Count; i++)
-		{
-			float percentX = Mathf.InverseLerp(-cave.GetLength(0) / 2 * squareSize, cave.GetLength(0) / 2 * squareSize, floorVertices[i].x) * tileAmount;
-			float percentY = Mathf.InverseLerp(-cave.GetLength(1) / 2 * squareSize, cave.GetLength(1) / 2 * squareSize, floorVertices[i].z) * tileAmount;
+        for (int i = 0; i < floorVertices.Count; i++)
+        {
+            float percentX = Mathf.InverseLerp(-cave.GetLength(0) / 2 * squareSize, cave.GetLength(0) / 2 * squareSize, floorVertices[i].x);
+            float percentY = Mathf.InverseLerp(-cave.GetLength(1) / 2 * squareSize, cave.GetLength(1) / 2 * squareSize, floorVertices[i].z);
 
-			uvs[i] = new Vector2(percentX, percentY);
+            uvs[i] = new Vector2(percentX, percentY);
 		}
 
-		floorMesh.uv = uvs;
+        floorMesh.uv = uvs;
 
-		floorMesh.RecalculateNormals();
+		floorMesh.RecalculateBounds();
+        floorMesh.RecalculateNormals();
 
 		floor.mesh = floorMesh;
 
-		navMesh.BuildNavMesh();
+		//navMesh.BuildNavMesh();
+
+		AddNoise(floor, cave);
 
 		floorCollider.sharedMesh = floor.mesh;
+	}
+
+	private void AddNoise(MeshFilter mf, int[,] cave)
+    {
+		Vector3[] vertices = mf.mesh.vertices;
+
+		float noiseScale = 0.1f;
+
+		for (int i = 0; i < vertices.Length; i++)
+        {
+			float xCoord = (vertices[i].x + cave.GetLength(0) / 2f) * noiseScale;
+			float yCoord = (vertices[i].z + cave.GetLength(1) / 2f) * noiseScale;
+
+			float noiseValue = Mathf.PerlinNoise(xCoord, yCoord);
+
+			vertices[i] += Vector3.up * noiseValue * 2f;
+		}
+
+		mf.mesh.vertices = vertices;
+		mf.mesh.RecalculateBounds();
+		mf.mesh.RecalculateNormals();
 	}
 
 	private void CreateRoofMesh(int[,] cave, float _maxY, float squareSize)
@@ -305,6 +377,21 @@ public class MeshGenerator : MonoBehaviour
 		}
 
 	}
+
+
+	//int startIndex = floorVertices.Count;
+	//floorVertices.Add(new Vector3(0f, _minY, 0f) + positionOffset);
+	//floorVertices.Add(new Vector3(cave.GetLength(0), _minY, 0f) + positionOffset);
+	//floorVertices.Add(new Vector3(0f, _minY, cave.GetLength(1)) + positionOffset);
+	//floorVertices.Add(new Vector3(cave.GetLength(0), _minY, cave.GetLength(1)) + positionOffset);
+
+	//floorTriangles.Add(startIndex + 0);
+	//floorTriangles.Add(startIndex + 2);
+	//floorTriangles.Add(startIndex + 1);
+
+	//floorTriangles.Add(startIndex + 1);
+	//floorTriangles.Add(startIndex + 2);
+	//floorTriangles.Add(startIndex + 3);
 
 	void MeshFromPoints(params CentreNode[] points)
 	{

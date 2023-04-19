@@ -23,6 +23,12 @@ public class CaveGenerator : MonoBehaviour
     public GameObject Enemy;
     private bool enemySpawned;
 
+    /*things to fix 
+    1. the cave being fucked if its too big
+
+
+    */
+
     // Start is called before the first frame update
     void Start()
     {
