@@ -132,17 +132,119 @@ public class MeshGenerator : MonoBehaviour
 
 		walls.GetComponent<MeshRenderer>().material = caveMat;
 
-        CreateFloorMesh(cave, minY, 1);
+		//CreateFloorMesh(cave, minY, 1);
+		FloorMesh(cave, minY, 1);
 		CreateRoofMesh(cave, maxY, 1);
 	}
 
-	private void CreateFloorMesh(int[,] cave, float _minY, float squareSize)
+	private void FloorMesh(int[,] cave, float _minY, float squareSize)
+    {
+		List<Vector3> floorVertices = new List<Vector3>();
+		List<int> floorTriangles = new List<int>();
+		Mesh floorMesh = new Mesh();
+
+		Vector3 positionOffset = new Vector3(-(cave.GetLength(0) / 2f), 0, -(cave.GetLength(1) / 2f));
+
+		for (int x = 0; x < cave.GetLength(0); x++)
+        {
+			for (int z = 0; z < cave.GetLength(1); z++)
+			{
+				// Calculate the position of the vertices for this square
+				Vector3 bottomLeft = new Vector3(x, 0, z + squareSize) + positionOffset;
+				Vector3 bottomRight = new Vector3(x + squareSize, 0, z + squareSize) + positionOffset;
+				Vector3 topLeft = new Vector3(x, 0, z) + positionOffset;
+				Vector3 topRight = new Vector3(x + squareSize, 0, z) + positionOffset;
+
+				// Add the vertices to the list
+				int vertexIndex = floorVertices.Count;
+
+				floorVertices.Add(topLeft);
+				floorVertices.Add(topRight);
+				floorVertices.Add(bottomRight);
+				floorVertices.Add(bottomLeft);
+
+				// Add the triangles to the list
+
+				floorTriangles.Add(vertexIndex + 3);
+				floorTriangles.Add(vertexIndex + 1);
+				floorTriangles.Add(vertexIndex);
+
+				floorTriangles.Add(vertexIndex + 3);
+				floorTriangles.Add(vertexIndex + 2);
+				floorTriangles.Add(vertexIndex + 1);
+			}
+		}
+
+		floorMesh.vertices = floorVertices.ToArray();
+		floorMesh.triangles = floorTriangles.ToArray();
+
+		floorMesh.RecalculateNormals();
+		floorMesh.RecalculateBounds();
+
+		floor.mesh = floorMesh;
+	}
+
+    private void CreateFloorMesh(int[,] cave, float _minY, float squareSize)
     {
 		List<Vector3> floorVertices = new List<Vector3>();
 
 		List<int> floorTriangles = new List<int>();
 
 		Mesh floorMesh = new Mesh();
+
+		//Vector3 positionOffset = new Vector3(-(cave.GetLength(0) / 2f), 0, -(cave.GetLength(1) / 2f));
+
+		//int blockSize = 50;
+		//int numBlocksX = cave.GetLength(0) / blockSize;
+		//int numBlocksZ = cave.GetLength(1) / blockSize;
+
+		//// Loop through each block and generate vertices and triangles
+		//for (int blockX = 0; blockX < numBlocksX; blockX++)
+		//{
+		//	for (int blockZ = 0; blockZ < numBlocksZ; blockZ++)
+		//	{
+		//		int lastBlockSizeX = cave.GetLength(0) % blockSize;
+		//		int lastBlockSizeZ = cave.GetLength(1) % blockSize;
+		//		if (lastBlockSizeX != 0)
+		//		{
+		//			// Adjust the width of the last block
+		//			int startX = numBlocksX * blockSize;
+		//			int endX = startX + lastBlockSizeX;
+		//			for (int x = startX; x <= endX; x++)
+		//			{
+		//				for (int z = 0; z <= blockSize; z++)
+		//				{
+		//					Vector3 vertex = new Vector3(x * squareSize, _minY, (blockZ * blockSize + z) * squareSize) + positionOffset;
+		//					floorVertices.Add(vertex);
+		//				}
+		//			}
+		//		}
+		//		if (lastBlockSizeZ != 0)
+		//		{
+		//			// Adjust the depth of the last block
+		//			int startZ = numBlocksZ * blockSize;
+		//			int endZ = startZ + lastBlockSizeZ;
+		//			for (int x = 0; x <= blockSize; x++)
+		//			{
+		//				for (int z = startZ; z <= endZ; z++)
+		//				{
+		//					Vector3 vertex = new Vector3((blockX * blockSize + x) * squareSize, _minY, z * squareSize) + positionOffset;
+		//					floorVertices.Add(vertex);
+		//				}
+		//			}
+		//		}
+
+		//		int startIndex = floorVertices.Count;
+
+		//              // Generate block vertices
+		//              for (int x = 0; x <= blockSize; x++)
+		//              {
+		//                  for (int z = 0; z <= blockSize; z++)
+		//                  {
+		//                      Vector3 vertex = new Vector3((blockX * blockSize + x) * squareSize, _minY, (blockZ * blockSize + z) * squareSize) + positionOffset;
+		//                      floorVertices.Add(vertex);
+		//                  }
+		//              }
 
 		Vector3 positionOffset = new Vector3(-(cave.GetLength(0) / 2f), 0, -(cave.GetLength(1) / 2f));
 
@@ -155,9 +257,21 @@ public class MeshGenerator : MonoBehaviour
 		{
 			for (int blockZ = 0; blockZ < numBlocksZ; blockZ++)
 			{
+				int startIndex = floorVertices.Count;
+
+				// Generate block vertices
+				for (int x = 0; x <= blockSize; x++)
+				{
+					for (int z = 0; z <= blockSize; z++)
+					{
+						Vector3 vertex = new Vector3((blockX * blockSize + x) * squareSize, _minY, (blockZ * blockSize + z) * squareSize) + positionOffset;
+						floorVertices.Add(vertex);
+					}
+				}
+
 				int lastBlockSizeX = cave.GetLength(0) % blockSize;
 				int lastBlockSizeZ = cave.GetLength(1) % blockSize;
-				if (lastBlockSizeX != 0)
+				if (lastBlockSizeX != 0 && blockX == numBlocksX - 1)
 				{
 					// Adjust the width of the last block
 					int startX = numBlocksX * blockSize;
@@ -171,7 +285,7 @@ public class MeshGenerator : MonoBehaviour
 						}
 					}
 				}
-				if (lastBlockSizeZ != 0)
+				if (lastBlockSizeZ != 0 && blockZ == numBlocksZ - 1)
 				{
 					// Adjust the depth of the last block
 					int startZ = numBlocksZ * blockSize;
@@ -186,18 +300,6 @@ public class MeshGenerator : MonoBehaviour
 					}
 				}
 
-				int startIndex = floorVertices.Count;
-
-				// Generate block vertices
-				for (int x = 0; x <= blockSize; x++)
-				{
-					for (int z = 0; z <= blockSize; z++)
-					{
-						Vector3 vertex = new Vector3((blockX * blockSize + x) * squareSize, _minY, (blockZ * blockSize + z) * squareSize) + positionOffset;
-						floorVertices.Add(vertex);
-					}
-				}
-
 				// Generate block triangles
 				for (int x = 0; x < blockSize; x++)
 				{
@@ -205,33 +307,45 @@ public class MeshGenerator : MonoBehaviour
 					{
 						int vertexIndex = (x * (blockSize + 1)) + z + startIndex;
 						int nextVertexIndex = vertexIndex + blockSize + 1;
+
+						// First triangle
+						floorTriangles.Add(vertexIndex + 1);
+						floorTriangles.Add(nextVertexIndex);
 						floorTriangles.Add(vertexIndex);
+
+                        // Second triangle
+                        floorTriangles.Add(nextVertexIndex + 1);
 						floorTriangles.Add(nextVertexIndex);
 						floorTriangles.Add(vertexIndex + 1);
-						floorTriangles.Add(vertexIndex + 1);
-						floorTriangles.Add(nextVertexIndex);
-						floorTriangles.Add(nextVertexIndex + 1);
 					}
 				}
 			}
 		}
 
+		//floorTriangles.Add(vertexIndex + 0);
+		//floorTriangles.Add(vertexIndex + 2);
+		//floorTriangles.Add(vertexIndex + 1);
+
+		//floorTriangles.Add(vertexIndex + 1);
+		//floorTriangles.Add(vertexIndex + 2);
+		//floorTriangles.Add(vertexIndex + 1);
+
 		floorMesh.vertices = floorVertices.ToArray();
 		floorMesh.triangles = floorTriangles.ToArray();
 
-		Vector2[] uvs = new Vector2[floorVertices.Count];
+        //Vector2[] uvs = new Vector2[floorVertices.Count];
 
-        for (int i = 0; i < floorVertices.Count; i++)
-        {
-            float percentX = Mathf.InverseLerp(-cave.GetLength(0) / 2 * squareSize, cave.GetLength(0) / 2 * squareSize, floorVertices[i].x);
-            float percentY = Mathf.InverseLerp(-cave.GetLength(1) / 2 * squareSize, cave.GetLength(1) / 2 * squareSize, floorVertices[i].z);
+        //for (int i = 0; i < floorVertices.Count; i++)
+        //{
+        //    float percentX = Mathf.InverseLerp(-cave.GetLength(0) / 2 * squareSize, cave.GetLength(0) / 2 * squareSize, floorVertices[i].x);
+        //    float percentY = Mathf.InverseLerp(-cave.GetLength(1) / 2 * squareSize, cave.GetLength(1) / 2 * squareSize, floorVertices[i].z);
 
-            uvs[i] = new Vector2(percentX, percentY);
-		}
+        //    uvs[i] = new Vector2(percentX, percentY);
+        //}
 
-        floorMesh.uv = uvs;
+        //floorMesh.uv = uvs;
 
-		floorMesh.RecalculateBounds();
+        floorMesh.RecalculateBounds();
         floorMesh.RecalculateNormals();
 
 		floor.mesh = floorMesh;
@@ -274,8 +388,8 @@ public class MeshGenerator : MonoBehaviour
 
 		Vector3 positionOffset = new Vector3(-(cave.GetLength(0) / 2f), 0, -(cave.GetLength(1) / 2f));
 
-		int startIndex = roofVertices.Count;
-		roofVertices.Add(new Vector3(0f, _maxY, 0f) + positionOffset);
+        int startIndex = roofVertices.Count;
+        roofVertices.Add(new Vector3(0f, _maxY, 0f) + positionOffset);
 		roofVertices.Add(new Vector3(cave.GetLength(0), _maxY, 0f) + positionOffset);
 		roofVertices.Add(new Vector3(0f, _maxY, cave.GetLength(1)) + positionOffset);
 		roofVertices.Add(new Vector3(cave.GetLength(0), _maxY, cave.GetLength(1)) + positionOffset);
