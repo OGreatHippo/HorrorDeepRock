@@ -158,21 +158,21 @@ public class MeshGenerator : MonoBehaviour
 				// Add the vertices to the list
 				int vertexIndex = floorVertices.Count;
 
-				floorVertices.Add(topLeft);
-				floorVertices.Add(topRight);
-				floorVertices.Add(bottomRight);
 				floorVertices.Add(bottomLeft);
-
+				floorVertices.Add(topLeft);
+				floorVertices.Add(bottomRight);
+				floorVertices.Add(topRight);
+				
 				// Add the triangles to the list
 
-				floorTriangles.Add(vertexIndex + 3);
-				floorTriangles.Add(vertexIndex + 1);
-				floorTriangles.Add(vertexIndex);
-
-				floorTriangles.Add(vertexIndex + 3);
+				floorTriangles.Add(vertexIndex + 0);
 				floorTriangles.Add(vertexIndex + 2);
 				floorTriangles.Add(vertexIndex + 1);
-			}
+
+                floorTriangles.Add(vertexIndex + 1);
+                floorTriangles.Add(vertexIndex + 2);
+                floorTriangles.Add(vertexIndex + 3);
+            }
 		}
 
 		floorMesh.vertices = floorVertices.ToArray();
