@@ -164,7 +164,6 @@ public class MeshGenerator : MonoBehaviour
 				floorVertices.Add(topRight);
 				
 				// Add the triangles to the list
-
 				floorTriangles.Add(vertexIndex + 0);
 				floorTriangles.Add(vertexIndex + 2);
 				floorTriangles.Add(vertexIndex + 1);
