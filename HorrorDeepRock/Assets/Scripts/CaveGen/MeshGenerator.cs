@@ -236,9 +236,9 @@ public class MeshGenerator : MonoBehaviour
 
 		floor.mesh = floorMesh;
 
-		AddNoise(floor, cave);
+		//AddNoise(floor, cave);
 
-		navMesh.BuildNavMesh();
+		//navMesh.BuildNavMesh();
 
 		floorCollider.sharedMesh = floor.mesh;
 	}

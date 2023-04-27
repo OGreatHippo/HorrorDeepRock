@@ -416,25 +416,25 @@ public class CaveGenerator : MonoBehaviour
                     cave[x, y] = (randomSeed.Next(0, 100) < fillPercent) ? 1 : 0;
                 }
 
-                if(cave[x, y] == 0 && !playerSpawned)
-                {
-                    Instantiate(Player, new Vector3(x + 5, -5, y + 5), Quaternion.Euler(0, 145, 0));
-                    playerSpawned = true;
-                }
+                //if(cave[x, y] == 0 && !playerSpawned)
+                //{
+                //    Instantiate(Player, new Vector3(x + 5, -5, y + 5), Quaternion.Euler(0, 145, 0));
+                //    playerSpawned = true;
+                //}
             }
         }
 
-        for (int x = width - 1; x > 0; x--)
-        {
-            for (int y = height - 1; y > 0; y--)
-            {
-                if (cave[x, y] == 0 && !enemySpawned)
-                {
-                    Instantiate(Enemy, new Vector3(x / 2 - 5, -5, y / 2 - 5), Quaternion.Euler(0, -145, 0));
-                    enemySpawned = true;
-                }
-            }
-        }
+        //for (int x = width - 1; x > 0; x--)
+        //{
+        //    for (int y = height - 1; y > 0; y--)
+        //    {
+        //        if (cave[x, y] == 0 && !enemySpawned)
+        //        {
+        //            Instantiate(Enemy, new Vector3(x / 2 - 5, -5, y / 2 - 5), Quaternion.Euler(0, -145, 0));
+        //            enemySpawned = true;
+        //        }
+        //    }
+        //}
     }
 
     private void SmoothCave()
