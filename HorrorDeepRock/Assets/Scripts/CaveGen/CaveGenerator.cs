@@ -23,12 +23,6 @@ public class CaveGenerator : MonoBehaviour
     public GameObject Enemy;
     private bool enemySpawned;
 
-    /*things to fix 
-    1. the cave being fucked if its too big
-
-
-    */
-
     // Start is called before the first frame update
     void Start()
     {
@@ -77,7 +71,7 @@ public class CaveGenerator : MonoBehaviour
             }
         }
 
-        meshGen.GenerateMesh(wallBorder, 1);
+        meshGen.GenerateMesh(cave, 1);
     }
 
     void ProcessCave()
@@ -416,11 +410,11 @@ public class CaveGenerator : MonoBehaviour
                     cave[x, y] = (randomSeed.Next(0, 100) < fillPercent) ? 1 : 0;
                 }
 
-                //if(cave[x, y] == 0 && !playerSpawned)
-                //{
-                //    Instantiate(Player, new Vector3(x + 5, -5, y + 5), Quaternion.Euler(0, 145, 0));
-                //    playerSpawned = true;
-                //}
+                if (cave[x, y] == 0 && !playerSpawned)
+                {
+                    Instantiate(Player, new Vector3(x + 5, -5, y + 5), Quaternion.Euler(0, 145, 0));
+                    playerSpawned = true;
+                }
             }
         }
 
