@@ -23,7 +23,7 @@ public class Enemy : MonoBehaviour
     {
         animator = GetComponentInChildren<Animator>();
         agent = GetComponent<NavMeshAgent>();
-        test = GameObject.Find("GameObject").transform;
+        test = GameObject.Find("TestPos").transform;
     }
 
     private void Update()

@@ -67,6 +67,8 @@ public class MeshGenerator : MonoBehaviour
 		mesh.uv = uvs;
 
 		CreateWallMesh(cave, 1);
+		FloorMesh(cave, 1);
+		CreateRoofMesh(cave, 1);
 	}
 
 	private void CreateWallMesh(int[,] cave, float squareSize)
@@ -74,13 +76,8 @@ public class MeshGenerator : MonoBehaviour
 		CalculateMeshEdge();
 
 		List<Vector3> wallVertices = new List<Vector3>();
-
 		List<int> wallTriangles = new List<int>();
-
 		Mesh wallMesh = new Mesh();
-
-		float minY = 0.1f;
-		float maxY = 0.5f;
 
 		foreach(List<int> edge in edges)
         {
@@ -105,8 +102,6 @@ public class MeshGenerator : MonoBehaviour
 		wallMesh.vertices = wallVertices.ToArray();
 		wallMesh.triangles = wallTriangles.ToArray();
 
-        /* this part slows down generation due to it looping thorugh all vertices and adding the texture to it, could be improved by grouping each length of wall together and pasting one big texture over it instead, also needs texture to tile on the y and not just x */
-
         Vector2[] uvs = new Vector2[wallVertices.Count];
 
         float textureScale = caveMat.mainTextureScale.x;
@@ -122,8 +117,6 @@ public class MeshGenerator : MonoBehaviour
 
         wallMesh.uv = uvs;
 
-        /* end of part that needs improvement */
-
         wallMesh.RecalculateNormals();
 
 		walls.mesh = wallMesh;
@@ -131,16 +124,18 @@ public class MeshGenerator : MonoBehaviour
 		wallCollider.sharedMesh = walls.mesh;
 
 		walls.GetComponent<MeshRenderer>().material = caveMat;
-
-		FloorMesh(cave, minY, 1);
-		CreateRoofMesh(cave, maxY, 1);
 	}
 
-	private void FloorMesh(int[,] cave, float _minY, float squareSize)
+	private void FloorMesh(int[,] cave, float squareSize)
     {
 		List<Vector3> floorVertices = new List<Vector3>();
 		List<int> floorTriangles = new List<int>();
 		Mesh floorMesh = new Mesh();
+
+		floorVertices.Clear();
+		floorTriangles.Clear();
+		floorMesh.Clear();
+		floor.mesh.Clear();
 
 		Vector3 positionOffset = new Vector3(-(cave.GetLength(0) / 2f), 0, -(cave.GetLength(1) / 2f));
 
@@ -224,11 +219,16 @@ public class MeshGenerator : MonoBehaviour
 		navMesh.BuildNavMesh();
 	}
 
-	private void CreateRoofMesh(int[,] cave, float _maxY, float squareSize)
+	private void CreateRoofMesh(int[,] cave, float squareSize)
 	{
 		List<Vector3> roofVertices = new List<Vector3>();
 		List<int> roofTriangles = new List<int>();
 		Mesh roofMesh = new Mesh();
+
+		roofVertices.Clear();
+		roofTriangles.Clear();
+		roofMesh.Clear();
+		roof.mesh.Clear();
 
 		Vector3 positionOffset = new Vector3(-(cave.GetLength(0) / 2f), 0, -(cave.GetLength(1) / 2f));
 
@@ -284,7 +284,7 @@ public class MeshGenerator : MonoBehaviour
 
 		AddNoise(roof, cave);
 
-		floorCollider.sharedMesh = floor.mesh;
+		roofCollider.sharedMesh = roof.mesh;
 	}
 
 	void TriangulateSquare(SquareConfiguration square)
