@@ -123,25 +123,24 @@ public class CaveGenerator : MonoBehaviour
 
     void ConnectClosestRooms(List<Room> allRooms, bool forceAccessibilityFromMainRoom = false)
     {
+
         List<Room> roomListA = new List<Room>();
         List<Room> roomListB = new List<Room>();
 
-        if(forceAccessibilityFromMainRoom)
+        if (forceAccessibilityFromMainRoom)
         {
-            foreach(Room room in allRooms)
+            foreach (Room room in allRooms)
             {
-                if(room.isAccessibleFromMainRoom)
+                if (room.isAccessibleFromMainRoom)
                 {
                     roomListB.Add(room);
                 }
-
                 else
                 {
                     roomListA.Add(room);
                 }
             }
         }
-
         else
         {
             roomListA = allRooms;
@@ -149,46 +148,42 @@ public class CaveGenerator : MonoBehaviour
         }
 
         int bestDistance = 0;
-
         TileCoordinate bestTileA = new TileCoordinate();
         TileCoordinate bestTileB = new TileCoordinate();
         Room bestRoomA = new Room();
         Room bestRoomB = new Room();
-        bool possibleConnection = false;
+        bool possibleConnectionFound = false;
 
         foreach (Room roomA in roomListA)
         {
-            if(!forceAccessibilityFromMainRoom)
+            if (!forceAccessibilityFromMainRoom)
             {
-                possibleConnection = false;
-
-                if(roomA.connectedRooms.Count > 0)
+                possibleConnectionFound = false;
+                if (roomA.connectedRooms.Count > 0)
                 {
                     continue;
                 }
             }
-            
-            foreach(Room roomB in roomListB)
+
+            foreach (Room roomB in roomListB)
             {
-                if(roomA == roomB || roomA.IsConnected(roomB))
+                if (roomA == roomB || roomA.IsConnected(roomB))
                 {
                     continue;
                 }
 
-                for(int tileIndexA = 0; tileIndexA < roomA.edgeTiles.Count; tileIndexA++)
+                for (int tileIndexA = 0; tileIndexA < roomA.edgeTiles.Count; tileIndexA++)
                 {
                     for (int tileIndexB = 0; tileIndexB < roomB.edgeTiles.Count; tileIndexB++)
                     {
                         TileCoordinate tileA = roomA.edgeTiles[tileIndexA];
                         TileCoordinate tileB = roomB.edgeTiles[tileIndexB];
-
                         int distanceBetweenRooms = (int)(Mathf.Pow(tileA.tileX - tileB.tileX, 2) + Mathf.Pow(tileA.tileY - tileB.tileY, 2));
 
-                        if(distanceBetweenRooms < bestDistance || !possibleConnection)
+                        if (distanceBetweenRooms < bestDistance || !possibleConnectionFound)
                         {
                             bestDistance = distanceBetweenRooms;
-                            possibleConnection = true;
-
+                            possibleConnectionFound = true;
                             bestTileA = tileA;
                             bestTileB = tileB;
                             bestRoomA = roomA;
@@ -197,14 +192,13 @@ public class CaveGenerator : MonoBehaviour
                     }
                 }
             }
-
-            if(possibleConnection && !forceAccessibilityFromMainRoom)
+            if (possibleConnectionFound && !forceAccessibilityFromMainRoom)
             {
                 CreatePassage(bestRoomA, bestRoomB, bestTileA, bestTileB);
             }
         }
 
-        if (possibleConnection && forceAccessibilityFromMainRoom)
+        if (possibleConnectionFound && forceAccessibilityFromMainRoom)
         {
             CreatePassage(bestRoomA, bestRoomB, bestTileA, bestTileB);
             ConnectClosestRooms(allRooms, true);
@@ -219,29 +213,27 @@ public class CaveGenerator : MonoBehaviour
     void CreatePassage(Room roomA, Room roomB, TileCoordinate tileA, TileCoordinate tileB)
     {
         Room.ConnectRooms(roomA, roomB);
-
+       
         List<TileCoordinate> line = GetLine(tileA, tileB);
-
-        foreach(TileCoordinate c in line)
+        foreach (TileCoordinate c in line)
         {
-            DrawCircle(c, 2);
+            DrawCircle(c, 5);
         }
     }
 
     void DrawCircle(TileCoordinate c, int r)
     {
-        for(int x = -r; x <= r; x++)
+        for (int x = -r; x <= r; x++)
         {
             for (int y = -r; y <= r; y++)
             {
-                if(x*x + y*y <= r*r)
+                if (x * x + y * y <= r * r)
                 {
-                    int realX = c.tileX + x;
-                    int realY = c.tileY + y;
-
-                    if(isInRange(realX, realY))
+                    int drawX = c.tileX + x;
+                    int drawY = c.tileY + y;
+                    if (IsInRange(drawX, drawY))
                     {
-                        cave[realX, realY] = 0;
+                        cave[drawX, drawY] = 0;
                     }
                 }
             }
@@ -259,16 +251,15 @@ public class CaveGenerator : MonoBehaviour
         int dy = to.tileY - from.tileY;
 
         bool inverted = false;
-        int step = MathF.Sign(dx);
-        int gradientStep = MathF.Sign(dy);
+        int step = Math.Sign(dx);
+        int gradientStep = Math.Sign(dy);
 
         int longest = Mathf.Abs(dx);
         int shortest = Mathf.Abs(dy);
 
-        if(longest < shortest)
+        if (longest < shortest)
         {
             inverted = true;
-
             longest = Mathf.Abs(dy);
             shortest = Mathf.Abs(dx);
 
@@ -276,36 +267,31 @@ public class CaveGenerator : MonoBehaviour
             gradientStep = Math.Sign(dx);
         }
 
-        int gradientAccumulation = longest / 2; 
-
-        for(int i = 0; i < longest; i++)
+        int gradientAccumulation = longest / 2;
+        for (int i = 0; i < longest; i++)
         {
             line.Add(new TileCoordinate(x, y));
 
-            if(inverted)
+            if (inverted)
             {
                 y += step;
             }
-
             else
             {
                 x += step;
             }
 
             gradientAccumulation += shortest;
-
-            if(gradientAccumulation >= longest)
+            if (gradientAccumulation >= longest)
             {
-                if(inverted)
+                if (inverted)
                 {
                     x += gradientStep;
                 }
-
                 else
                 {
                     y += gradientStep;
                 }
-
                 gradientAccumulation -= longest;
             }
         }
@@ -315,28 +301,26 @@ public class CaveGenerator : MonoBehaviour
 
     Vector3 CoordToWorldPoint(TileCoordinate tile)
     {
-        return new Vector3(-width / 2 + 0.5f + tile.tileX, 2, -height / 2 + 0.5f + tile.tileY);
+        return new Vector3(-width / 2 + .5f + tile.tileX, 2, -height / 2 + .5f + tile.tileY);
     }
 
     List<List<TileCoordinate>> GetRegions(int tileType)
     {
         List<List<TileCoordinate>> regions = new List<List<TileCoordinate>>();
-
-        int[,] caveFlags = new int[width, height];
+        int[,] mapFlags = new int[width, height];
 
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
-                if(caveFlags[x, y] == 0 && cave[x, y] == tileType)
+                if (mapFlags[x, y] == 0 && cave[x, y] == tileType)
                 {
                     List<TileCoordinate> newRegion = GetRegionTiles(x, y);
-
                     regions.Add(newRegion);
 
-                    foreach(TileCoordinate tile in newRegion)
+                    foreach (TileCoordinate tile in newRegion)
                     {
-                        caveFlags[tile.tileX, tile.tileY] = 1;
+                        mapFlags[tile.tileX, tile.tileY] = 1;
                     }
                 }
             }
@@ -348,46 +332,41 @@ public class CaveGenerator : MonoBehaviour
     List<TileCoordinate> GetRegionTiles(int startX, int startY)
     {
         List<TileCoordinate> tiles = new List<TileCoordinate>();
-
-        int[,] caveFlags = new int[width, height];
-
+        int[,] mapFlags = new int[width, height];
         int tileType = cave[startX, startY];
 
         Queue<TileCoordinate> queue = new Queue<TileCoordinate>();
-
         queue.Enqueue(new TileCoordinate(startX, startY));
-        caveFlags[startX, startY] = 1;
+        mapFlags[startX, startY] = 1;
 
-        while(queue.Count > 0)
+        while (queue.Count > 0)
         {
             TileCoordinate tile = queue.Dequeue();
             tiles.Add(tile);
 
-            for(int x = tile.tileX - 1; x <= tile.tileX + 1; x++)
+            for (int x = tile.tileX - 1; x <= tile.tileX + 1; x++)
             {
                 for (int y = tile.tileY - 1; y <= tile.tileY + 1; y++)
                 {
-                    if(isInRange(x, y) && (y == tile.tileY || x == tile.tileX))
+                    if (IsInRange(x, y) && (y == tile.tileY || x == tile.tileX))
                     {
-                        if(caveFlags[x, y] == 0 && cave[x, y] == tileType)
+                        if (mapFlags[x, y] == 0 && cave[x, y] == tileType)
                         {
-                            caveFlags[x, y] = 1;
-
+                            mapFlags[x, y] = 1;
                             queue.Enqueue(new TileCoordinate(x, y));
                         }
                     }
                 }
             }
         }
-
         return tiles;
     }
 
-    bool isInRange(int x, int y)
+
+    bool IsInRange(int x, int y)
     {
         return x >= 0 && x < width && y >= 0 && y < height;
     }
-
     private void RandomFillCave()
     {
         if(usingRandomSeed)
@@ -431,43 +410,37 @@ public class CaveGenerator : MonoBehaviour
         }
     }
 
-    private void SmoothCave()
+    void SmoothCave()
     {
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
-                int neighbourWalls = GetWallCount(x, y);
+                int neighbourWallTiles = GetWallCount(x, y);
 
-                if (neighbourWalls > 4)
-                {
+                if (neighbourWallTiles > 4)
                     cave[x, y] = 1;
-                }
-
-                else if(neighbourWalls < 4)
-                {
+                else if (neighbourWallTiles < 4)
                     cave[x, y] = 0;
-                }
+
             }
         }
     }
 
-    private int GetWallCount(int gridX, int gridY)
+    int GetWallCount(int gridX, int gridY)
     {
         int wallCount = 0;
-
-        for(int nX = gridX - 1; nX <= gridX + 1; nX++)
+        for (int neighbourX = gridX - 1; neighbourX <= gridX + 1; neighbourX++)
         {
-            for (int nY = gridY - 1; nY <= gridY + 1; nY++)
+            for (int neighbourY = gridY - 1; neighbourY <= gridY + 1; neighbourY++)
             {
-                if(isInRange(nX, nY))
+                if (IsInRange(neighbourX, neighbourY))
                 {
-                    if (nX != gridX || nY != gridY)
+                    if (neighbourX != gridX || neighbourY != gridY)
                     {
-                        wallCount += cave[nX, nY];
+                        wallCount += cave[neighbourX, neighbourY];
                     }
-                } 
-                
+                }
                 else
                 {
                     wallCount++;
