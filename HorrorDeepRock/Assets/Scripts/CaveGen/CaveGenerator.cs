@@ -27,25 +27,15 @@ public class CaveGenerator : MonoBehaviour
     void Start()
     {
         meshGen = transform.Find("CaveCreator").GetComponent<MeshGenerator>();
-
-        //GenerateCave();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        //if(Input.GetKeyDown(KeyCode.P))
-        //{
-        //    GenerateCave();
-        //}
-    }
-
-    public void GenerateCave(Vector3 position, int size)
+    public void GenerateCave(int size)
     {
         width = size;
         height = size;
 
         cave = new int[width, height];
+
         RandomFillCave();
 
         for(int i = 0; i < 5; i++)
@@ -74,7 +64,7 @@ public class CaveGenerator : MonoBehaviour
             }
         }
 
-        meshGen.GenerateMesh(cave, 1);
+        meshGen.GenerateMesh(wallBorder, 1);
     }
 
     void ProcessCave()
@@ -220,7 +210,7 @@ public class CaveGenerator : MonoBehaviour
         List<TileCoordinate> line = GetLine(tileA, tileB);
         foreach (TileCoordinate c in line)
         {
-            DrawCircle(c, 5);
+            DrawCircle(c, 10);
         }
     }
 

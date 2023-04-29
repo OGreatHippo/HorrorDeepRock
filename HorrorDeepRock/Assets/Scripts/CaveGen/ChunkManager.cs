@@ -14,9 +14,24 @@ public class ChunkManager : MonoBehaviour
         GenerateMesh();
     }
 
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            GenerateMesh();
+        }
+    }
+
     void GenerateMesh()
     {
+        StartCoroutine(delay());
+    }
+
+    IEnumerator delay()
+    {
+        yield return new WaitForSeconds(0.01f);
+
         // Generate the cave data for this chunk
-        caveData.GenerateCave(transform.position, chunkSize);
+        caveData.GenerateCave(chunkSize);
     }
 }
