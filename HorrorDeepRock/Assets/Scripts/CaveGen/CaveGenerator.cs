@@ -7,13 +7,13 @@ public class CaveGenerator : MonoBehaviour
 {
     private MeshGenerator meshGen;
 
-    public int width;
-    public int height;
+    private int width;
+    private int height;
 
     public string seed;
     public bool usingRandomSeed;
 
-    [Range(45, 50)] public int fillPercent;
+    private int fillPercent = 48;
 
     int[,] cave;
 
@@ -26,22 +26,25 @@ public class CaveGenerator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        meshGen = GetComponent<MeshGenerator>();
+        meshGen = transform.Find("CaveCreator").GetComponent<MeshGenerator>();
 
-        GenerateCave();
+        //GenerateCave();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.P))
-        {
-            GenerateCave();
-        }
+        //if(Input.GetKeyDown(KeyCode.P))
+        //{
+        //    GenerateCave();
+        //}
     }
 
-    private void GenerateCave()
+    public void GenerateCave(Vector3 position, int size)
     {
+        width = size;
+        height = size;
+
         cave = new int[width, height];
         RandomFillCave();
 
@@ -369,9 +372,11 @@ public class CaveGenerator : MonoBehaviour
     }
     private void RandomFillCave()
     {
+        int random = UnityEngine.Random.Range(0, 10000000);
+
         if(usingRandomSeed)
         {
-            seed = Time.time.ToString();
+            seed = random.ToString();
         }
 
         System.Random randomSeed = new System.Random(seed.GetHashCode());
@@ -389,25 +394,25 @@ public class CaveGenerator : MonoBehaviour
                     cave[x, y] = (randomSeed.Next(0, 100) < fillPercent) ? 1 : 0;
                 }
 
-                if (cave[x, y] == 0 && !playerSpawned)
-                {
-                    Instantiate(Player, new Vector3(x + 5, -5, y + 5), Quaternion.Euler(0, 145, 0));
-                    playerSpawned = true;
-                }
+                //if (cave[x, y] == 0 && !playerSpawned)
+                //{
+                //    Instantiate(Player, new Vector3(x + 5, -5, y + 5), Quaternion.Euler(0, 145, 0));
+                //    playerSpawned = true;
+                //}
             }
         }
 
-        for (int x = width - 1; x > 0; x--)
-        {
-            for (int y = height - 1; y > 0; y--)
-            {
-                if (cave[x, y] == 0 && !enemySpawned)
-                {
-                    Instantiate(Enemy, new Vector3(x / 2 - 5, -5, y / 2 - 5), Quaternion.Euler(0, -145, 0));
-                    enemySpawned = true;
-                }
-            }
-        }
+        //for (int x = width - 1; x > 0; x--)
+        //{
+        //    for (int y = height - 1; y > 0; y--)
+        //    {
+        //        if (cave[x, y] == 0 && !enemySpawned)
+        //        {
+        //            Instantiate(Enemy, new Vector3(x / 2 - 5, -5, y / 2 - 5), Quaternion.Euler(0, -145, 0));
+        //            enemySpawned = true;
+        //        }
+        //    }
+        //}
     }
 
     void SmoothCave()
