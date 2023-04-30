@@ -31,7 +31,6 @@ public class ChunkManager : MonoBehaviour
     {
         yield return new WaitForSeconds(0.01f);
 
-        // Generate the cave data for this chunk
         caveData.GenerateCave(chunkSize);
     }
 }

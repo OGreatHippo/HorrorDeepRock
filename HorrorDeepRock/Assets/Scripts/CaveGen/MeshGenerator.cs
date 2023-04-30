@@ -143,6 +143,11 @@ public class MeshGenerator : MonoBehaviour
         {
 			for (int z = 0; z < cave.GetLength(1); z++)
 			{
+                if (x == cave.GetLength(0) - 1 || z == cave.GetLength(1) - 1)
+                {
+                    continue;
+                }
+
                 // Calculate the position of the vertices for this square
                 Vector3 bottomLeft = new Vector3(x, 0, z + squareSize) + positionOffset;
                 Vector3 bottomRight = new Vector3(x + squareSize, 0, z + squareSize) + positionOffset;
@@ -236,6 +241,11 @@ public class MeshGenerator : MonoBehaviour
 		{
 			for (int z = 0; z < cave.GetLength(1); z++)
 			{
+				if (x == cave.GetLength(0) - 1 || z == cave.GetLength(1) - 1)
+				{
+					continue;
+				}
+
 				// Calculate the position of the vertices for this square
 				Vector3 bottomLeft = new Vector3(x, 0, z + squareSize) + positionOffset;
 				Vector3 bottomRight = new Vector3(x + squareSize, 0, z + squareSize) + positionOffset;
