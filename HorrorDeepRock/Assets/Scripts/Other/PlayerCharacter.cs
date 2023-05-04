@@ -12,6 +12,12 @@ public class PlayerCharacter : MonoBehaviour
     private float currentSpeed;
     private float jumpHeight = 2.5f;
     private float gravity = -9.81f;
+    private AudioSource audioSource;
+    public AudioClip jump;
+    public AudioClip land;
+    public AudioClip walk;
+    private bool isJumping;
+    private bool isMoving;
 
     //Sprinting
     private float sprintSpeed = 10f;
@@ -64,6 +70,27 @@ public class PlayerCharacter : MonoBehaviour
 
         Vector3 move = transform.right * x + transform.forward * z;
         controller.Move(move * Time.deltaTime * currentSpeed);
+
+        if(controller.velocity.x != 0 || controller.velocity.z != 0)
+        {
+            isMoving = true;
+        }
+        else
+        {
+            isMoving = false;
+        }
+
+        if (isMoving && !isJumping)
+        {
+            if (!audioSource.isPlaying)
+            {
+                audioSource.PlayOneShot(walk);
+            }
+        }
+        else
+        {
+            audioSource.Stop();
+        }
     }
 
     private void Jump()
@@ -71,6 +98,7 @@ public class PlayerCharacter : MonoBehaviour
         if (controller.isGrounded && playerVelocity.y <= 0)
         {
             playerVelocity.y = -2f;
+            isJumping = false;
         }
 
         playerVelocity.y += gravity * Time.deltaTime;
@@ -81,6 +109,12 @@ public class PlayerCharacter : MonoBehaviour
             if(Input.GetKeyDown(KeyCode.Space))
             {
                 playerVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+                audioSource.PlayOneShot(jump);
+                isJumping = true;
+            }
+            else if (!isMoving && audioSource.isPlaying)
+            {
+                audioSource.Stop();
             }
         }
 
@@ -159,5 +193,6 @@ public class PlayerCharacter : MonoBehaviour
 
         staminaSlider = GameObject.Find("Canvas").transform.Find("StaminaBar").GetComponent<StaminaSlider>();
         staminaImg = staminaSlider.transform.Find("Stamina").GetComponent<Image>();
+        audioSource = gameObject.GetComponent<AudioSource>();
     }
 }
