@@ -23,10 +23,22 @@ public class CaveGenerator : MonoBehaviour
     public GameObject Enemy;
     private bool enemySpawned;
 
+    private int size;
+
     // Start is called before the first frame update
     void Start()
     {
         meshGen = transform.Find("CaveCreator").GetComponent<MeshGenerator>();
+
+        GenerateCave(size);
+    }
+
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.P))
+        {
+            GenerateCave(size);
+        }
     }
 
     public void GenerateCave(int size)
@@ -384,11 +396,14 @@ public class CaveGenerator : MonoBehaviour
                     cave[x, y] = (randomSeed.Next(0, 100) < fillPercent) ? 1 : 0;
                 }
 
-                //if (cave[x, y] == 0 && !playerSpawned)
-                //{
-                //    Instantiate(Player, new Vector3(x + 5, -5, y + 5), Quaternion.Euler(0, 145, 0));
-                //    playerSpawned = true;
-                //}
+                if(gameObject.name == "Chunk[0, 0]")
+                {
+                    if (cave[x, y] == 0 && !playerSpawned)
+                    {
+                        Instantiate(Player, new Vector3(x + 5, -5, y + 5), Quaternion.Euler(0, 145, 0));
+                        playerSpawned = true;
+                    }
+                }
             }
         }
 
@@ -444,5 +459,10 @@ public class CaveGenerator : MonoBehaviour
         }
 
         return wallCount;
+    }
+
+    public int SetSize(int _size)
+    {
+        return size = _size;
     }
 }

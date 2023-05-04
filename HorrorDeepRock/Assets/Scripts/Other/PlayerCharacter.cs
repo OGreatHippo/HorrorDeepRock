@@ -155,7 +155,7 @@ public class PlayerCharacter : MonoBehaviour
     private void GetComponents()
     {
         controller = GetComponent<CharacterController>();
-        playerCamera = GameObject.Find("Camera").transform;
+        playerCamera = transform.Find("Camera").transform;
 
         staminaSlider = GameObject.Find("Canvas").transform.Find("StaminaBar").GetComponent<StaminaSlider>();
         staminaImg = staminaSlider.transform.Find("Stamina").GetComponent<Image>();
