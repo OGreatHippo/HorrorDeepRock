@@ -200,29 +200,48 @@ public class MeshGenerator : MonoBehaviour
 	}
 
 	private void AddNoise(MeshFilter mf, int[,] cave)
+{
+    Vector3[] vertices = mf.mesh.vertices;
+
+    float noiseScale = 0.1f;
+    float noiseAmplitude = 1f;
+
+    // Calculate the bounds of the mesh
+    Bounds bounds = mf.mesh.bounds;
+
+    // Iterate over all vertices and apply noise if the vertex is not on the edge
+    for (int i = 0; i < vertices.Length; i++)
     {
-		Vector3[] vertices = mf.mesh.vertices;
+        // Check if the vertex is on the edge of the mesh
+        bool isOnEdge = Mathf.Approximately(vertices[i].x, bounds.min.x) ||
+                        Mathf.Approximately(vertices[i].x, bounds.max.x) ||
+                        Mathf.Approximately(vertices[i].z, bounds.min.z) ||
+                        Mathf.Approximately(vertices[i].z, bounds.max.z);
 
-		float noiseScale = 0.1f;
-
-		for (int i = 0; i < vertices.Length; i++)
+        // Apply noise only if the vertex is not on the edge
+        if (!isOnEdge)
         {
-			float xCoord = (vertices[i].x + cave.GetLength(0) / 2f) * noiseScale;
-			float yCoord = (vertices[i].z + cave.GetLength(1) / 2f) * noiseScale;
+            float xCoord = (vertices[i].x + cave.GetLength(0) / 2f) * noiseScale;
+            float yCoord = (vertices[i].z + cave.GetLength(1) / 2f) * noiseScale;
 
-			float noiseValue = Mathf.PerlinNoise(xCoord, yCoord);
+            float noiseValue = Mathf.PerlinNoise(xCoord, yCoord);
 
-			noiseValue *= 1f;
+            // Scale the noise value by the amplitude
+            noiseValue *= noiseAmplitude;
 
-			vertices[i] += Vector3.up * 1f / (1.02f - noiseValue);
-		}
+            // Apply the noise to the vertex
+            vertices[i] += Vector3.up * 1f / (1.02f - noiseValue);
+        }
+    }
 
-		mf.mesh.vertices = vertices;
-		mf.mesh.RecalculateBounds();
-		mf.mesh.RecalculateNormals();
+    // Update the mesh
+    mf.mesh.vertices = vertices;
+    mf.mesh.RecalculateBounds();
+    mf.mesh.RecalculateNormals();
 
-		navMesh.BuildNavMesh();
-	}
+    // Update the nav mesh
+    navMesh.BuildNavMesh();
+}
 
 	private void CreateRoofMesh(int[,] cave, float squareSize)
 	{
