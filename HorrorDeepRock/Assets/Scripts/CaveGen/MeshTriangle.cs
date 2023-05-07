@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class MeshTriangle
 {
-	public int vertextIndexA;
-	public int vertextIndexB;
-	public int vertextIndexC;
+	private int vertextIndexA;
+	private int vertextIndexB;
+	private int vertextIndexC;
 
-	int[] vertices;
+	private int[] vertices;
 
 	public MeshTriangle(int a, int b, int c)
 	{
@@ -34,4 +34,24 @@ public class MeshTriangle
 	{
 		return vertexIndex == vertextIndexA || vertexIndex == vertextIndexB || vertexIndex == vertextIndexC;
 	}
+
+	public int GetVertexA()
+    {
+		return vertextIndexA;
+    }
+
+	public int GetVertexB()
+	{
+		return vertextIndexB;
+	}
+
+	public int GetVertexC()
+	{
+		return vertextIndexC;
+	}
+
+	public int[] GetVertices()
+    {
+		return vertices;
+    }
 }

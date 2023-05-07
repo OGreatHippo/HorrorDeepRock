@@ -4,17 +4,27 @@ using UnityEngine;
 
 public class TileCoordinate
 {
-    public int tileX;
-    public int tileY;
+    private int tileX;
+    private int tileZ;
 
     public TileCoordinate()
     {
 
     }
 
-    public TileCoordinate(int x, int y)
+    public TileCoordinate(int x, int z)
     {
         tileX = x;
-        tileY = y;
+        tileZ = z;
+    }
+
+    public int GetTileX()
+    {
+        return tileX;
+    }
+
+    public int GetTileZ()
+    {
+        return tileZ;
     }
 }

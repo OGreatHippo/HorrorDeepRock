@@ -12,6 +12,8 @@ public class ChunkManager : MonoBehaviour
 
     public List<GameObject> chunks;
 
+    public bool spawnPlayer;
+
     void Start()
     {
         for(int x = 0; x < chunkDistance; x++)
@@ -54,6 +56,12 @@ public class ChunkManager : MonoBehaviour
     {
         var chunkyboi = Instantiate(chunk, new Vector3(transform.position.x + (pos.x * chunkSize), transform.position.y, transform.position.z + (pos.y * chunkSize) ), Quaternion.identity);
         chunkyboi.name = "Chunk[" + pos.x + ", " + pos.y + "]";
+
+        if(chunkyboi.name == "Chunk[0, 0]")
+        {
+            chunkyboi.GetComponent<CaveGenerator>().SetSpawnPlayer(spawnPlayer);
+        }
+
         chunkyboi.transform.SetParent(gameObject.transform);
         chunkyboi.GetComponent<CaveGenerator>().SetSize(chunkSize);
         chunks.Add(chunkyboi);

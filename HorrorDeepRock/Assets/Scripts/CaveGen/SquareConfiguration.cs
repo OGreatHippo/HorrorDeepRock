@@ -4,40 +4,85 @@ using UnityEngine;
 
 public class SquareConfiguration
 {
-	public EdgeNode topLeft, topRight, bottomRight, bottomLeft;
-	public CentreNode centreTop, centreRight, centreBottom, centreLeft;
-	public int configuration;
+	private VertexNode topLeft, topRight, bottomRight, bottomLeft;
+	private CentreNode centreTop, centreRight, centreBottom, centreLeft;
+	private int configuration;
 
-	public SquareConfiguration(EdgeNode _topLeft, EdgeNode _topRight, EdgeNode _bottomRight, EdgeNode _bottomLeft)
+	public SquareConfiguration(VertexNode _topLeft, VertexNode _topRight, VertexNode _bottomRight, VertexNode _bottomLeft)
 	{
 		topLeft = _topLeft;
 		topRight = _topRight;
 		bottomRight = _bottomRight;
 		bottomLeft = _bottomLeft;
 
-		centreTop = topLeft.right;
-		centreRight = bottomRight.above;
-		centreBottom = bottomLeft.right;
-		centreLeft = bottomLeft.above;
+		centreTop = topLeft.GetRight();
+		centreRight = bottomRight.GetAbove();
+		centreBottom = bottomLeft.GetRight();
+		centreLeft = bottomLeft.GetAbove();
 
-		if (topLeft.active)
+		if (topLeft.GetActive())
 		{
 			configuration += 8;
 		}
 
-		if (topRight.active)
+		if (topRight.GetActive())
 		{
 			configuration += 4;
 		}
 
-		if (bottomRight.active)
+		if (bottomRight.GetActive())
 		{
 			configuration += 2;
 		}
 
-		if (bottomLeft.active)
+		if (bottomLeft.GetActive())
 		{
 			configuration += 1;
 		}
+	}
+
+	public int GetConfiguration()
+    {
+		return configuration;
+    }
+
+	public VertexNode GetTopLeft()
+    {
+		return topLeft;
+    }
+
+	public VertexNode GetTopRight()
+	{
+		return topRight;
+	}
+
+	public VertexNode GetBottomRight()
+	{
+		return bottomRight;
+	}
+
+	public VertexNode GetBottomLeft()
+	{
+		return bottomLeft;
+	}
+
+	public CentreNode GetCentreTop()
+    {
+		return centreTop;
+    }
+
+	public CentreNode GetCentreRight()
+	{
+		return centreRight;
+	}
+
+	public CentreNode GetCentreBottom()
+	{
+		return centreBottom;
+	}
+
+	public CentreNode GetCentreLeft()
+	{
+		return centreLeft;
 	}
 }

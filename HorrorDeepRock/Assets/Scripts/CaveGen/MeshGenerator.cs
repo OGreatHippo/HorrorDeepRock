@@ -16,14 +16,14 @@ public class MeshGenerator : MonoBehaviour
 
 	public NavMeshSurface navMesh;
 
-	List<Vector3> vertices;
-	List<int> triangles;
+	private List<Vector3> vertices;
+	private List<int> triangles;
 
-	Dictionary<int, List<MeshTriangle>> triangleDictionary = new Dictionary<int, List<MeshTriangle>>();
-	List<List<int>> edges = new List<List<int>>();
-	HashSet<int> checkedVertices = new HashSet<int>();
+	private Dictionary<int, List<MeshTriangle>> triangleDictionary = new Dictionary<int, List<MeshTriangle>>();
+	private List<List<int>> edges = new List<List<int>>();
+	private HashSet<int> checkedVertices = new HashSet<int>();
 
-	public float wallHeight = 10;
+	private float wallHeight = 10;
 
 	public Material caveMat;
 	private int tileAmount = 50;
@@ -39,11 +39,11 @@ public class MeshGenerator : MonoBehaviour
 		vertices = new List<Vector3>();
 		triangles = new List<int>();
 
-		for (int x = 0; x < squareGrid.squares.GetLength(0); x++)
+		for (int x = 0; x < squareGrid.GetAmountInGrid(0); x++)
 		{
-			for (int y = 0; y < squareGrid.squares.GetLength(1); y++)
+			for (int z = 0; z < squareGrid.GetAmountInGrid(1); z++)
 			{
-				TriangulateSquare(squareGrid.squares[x, y]);
+				TriangulateSquare(squareGrid.GetSquareAtCoords(x, z));
 			}
 		}
 
@@ -56,15 +56,15 @@ public class MeshGenerator : MonoBehaviour
 
 		Vector2[] uvs = new Vector2[vertices.Count];
 
-		for(int i = 0; i < vertices.Count; i++)
+        for (int i = 0; i < vertices.Count; i++)
         {
-			float percentX = Mathf.InverseLerp(-cave.GetLength(0) / 2 * squareSize, cave.GetLength(0) / 2 * squareSize, vertices[i].x) * tileAmount;
-			float percentY = Mathf.InverseLerp(-cave.GetLength(1) / 2 * squareSize, cave.GetLength(1) / 2 * squareSize, vertices[i].z) * tileAmount;
+            float percentX = Mathf.InverseLerp(-cave.GetLength(0) / 2 * squareSize, cave.GetLength(0) / 2 * squareSize, vertices[i].x) * tileAmount;
+            float percentZ = Mathf.InverseLerp(-cave.GetLength(1) / 2 * squareSize, cave.GetLength(1) / 2 * squareSize, vertices[i].z) * tileAmount;
 
-			uvs[i] = new Vector2(percentX, percentY);
-		}
+            uvs[i] = new Vector2(percentX, percentZ);
+        }
 
-		mesh.uv = uvs;
+        mesh.uv = uvs;
 
 		CreateWallMesh(cave, 1);
 		FloorMesh(cave, 1);
@@ -189,14 +189,14 @@ public class MeshGenerator : MonoBehaviour
 
         floorMesh.uv = uvs;
 
-        floorMesh.RecalculateNormals();
-		floorMesh.RecalculateBounds();
-
 		floor.mesh = floorMesh;
 
 		AddNoise(floor, cave);
 
 		floorCollider.sharedMesh = floor.mesh;
+
+		// Update the nav mesh
+		navMesh.BuildNavMesh();
 	}
 
 	private void AddNoise(MeshFilter mf, int[,] cave)
@@ -222,9 +222,9 @@ public class MeshGenerator : MonoBehaviour
         if (!isOnEdge)
         {
             float xCoord = (vertices[i].x + cave.GetLength(0) / 2f) * noiseScale;
-            float yCoord = (vertices[i].z + cave.GetLength(1) / 2f) * noiseScale;
+            float zCoord = (vertices[i].z + cave.GetLength(1) / 2f) * noiseScale;
 
-            float noiseValue = Mathf.PerlinNoise(xCoord, yCoord);
+            float noiseValue = Mathf.PerlinNoise(xCoord, zCoord);
 
             // Scale the noise value by the amplitude
             noiseValue *= noiseAmplitude;
@@ -238,9 +238,6 @@ public class MeshGenerator : MonoBehaviour
     mf.mesh.vertices = vertices;
     mf.mesh.RecalculateBounds();
     mf.mesh.RecalculateNormals();
-
-    // Update the nav mesh
-    navMesh.BuildNavMesh();
 }
 
 	private void CreateRoofMesh(int[,] cave, float squareSize)
@@ -306,9 +303,6 @@ public class MeshGenerator : MonoBehaviour
 
 		roofMesh.uv = uvs;
 
-		roofMesh.RecalculateNormals();
-		roofMesh.RecalculateBounds();
-
 		roof.mesh = roofMesh;
 
 		AddNoise(roof, cave);
@@ -316,74 +310,74 @@ public class MeshGenerator : MonoBehaviour
 		roofCollider.sharedMesh = roof.mesh;
 	}
 
-	void TriangulateSquare(SquareConfiguration square)
+	private void TriangulateSquare(SquareConfiguration square)
 	{
-		switch (square.configuration)
+		switch (square.GetConfiguration())
 		{
 			case 0:
 				break;
 
 			// 1 point in square
 			case 1:
-				MeshFromPoints(square.centreLeft, square.centreBottom, square.bottomLeft);
+				MeshFromPoints(square.GetCentreLeft(), square.GetCentreBottom(), square.GetBottomLeft());
 				break;
 			case 2:
-				MeshFromPoints(square.bottomRight, square.centreBottom, square.centreRight);
+				MeshFromPoints(square.GetBottomRight(), square.GetCentreBottom(), square.GetCentreRight());
 				break;
 			case 4:
-				MeshFromPoints(square.topRight, square.centreRight, square.centreTop);
+				MeshFromPoints(square.GetTopRight(), square.GetCentreRight(), square.GetCentreTop());
 				break;
 			case 8:
-				MeshFromPoints(square.topLeft, square.centreTop, square.centreLeft);
+				MeshFromPoints(square.GetTopLeft(), square.GetCentreTop(), square.GetCentreLeft());
 				break;
 
 			// 2 points in square
 			case 3:
-				MeshFromPoints(square.centreRight, square.bottomRight, square.bottomLeft, square.centreLeft);
+				MeshFromPoints(square.GetCentreRight(), square.GetBottomRight(), square.GetBottomLeft(), square.GetCentreLeft());
 				break;
 			case 6:
-				MeshFromPoints(square.centreTop, square.topRight, square.bottomRight, square.centreBottom);
+				MeshFromPoints(square.GetCentreTop(), square.GetTopRight(), square.GetBottomRight(), square.GetCentreBottom());
 				break;
 			case 9:
-				MeshFromPoints(square.topLeft, square.centreTop, square.centreBottom, square.bottomLeft);
+				MeshFromPoints(square.GetTopLeft(), square.GetCentreTop(), square.GetCentreBottom(), square.GetBottomLeft());
 				break;
 			case 12:
-				MeshFromPoints(square.topLeft, square.topRight, square.centreRight, square.centreLeft);
+				MeshFromPoints(square.GetTopLeft(), square.GetTopRight(), square.GetCentreRight(), square.GetCentreLeft());
 				break;
 			case 5:
-				MeshFromPoints(square.centreTop, square.topRight, square.centreRight, square.centreBottom, square.bottomLeft, square.centreLeft);
+				MeshFromPoints(square.GetCentreTop(), square.GetTopRight(), square.GetCentreRight(), square.GetCentreBottom(), square.GetBottomLeft(), square.GetCentreLeft());
 				break;
 			case 10:
-				MeshFromPoints(square.topLeft, square.centreTop, square.centreRight, square.bottomRight, square.centreBottom, square.centreLeft);
+				MeshFromPoints(square.GetTopLeft(), square.GetCentreTop(), square.GetCentreRight(), square.GetBottomRight(), square.GetCentreBottom(), square.GetCentreLeft());
 				break;
 
 			// 3 points in square
 			case 7:
-				MeshFromPoints(square.centreTop, square.topRight, square.bottomRight, square.bottomLeft, square.centreLeft);
+				MeshFromPoints(square.GetCentreTop(), square.GetTopRight(), square.GetBottomRight(), square.GetBottomLeft(), square.GetCentreLeft());
 				break;
 			case 11:
-				MeshFromPoints(square.topLeft, square.centreTop, square.centreRight, square.bottomRight, square.bottomLeft);
+				MeshFromPoints(square.GetTopLeft(), square.GetCentreTop(), square.GetCentreRight(), square.GetBottomRight(), square.GetBottomLeft());
 				break;
 			case 13:
-				MeshFromPoints(square.topLeft, square.topRight, square.centreRight, square.centreBottom, square.bottomLeft);
+				MeshFromPoints(square.GetTopLeft(), square.GetTopRight(), square.GetCentreRight(), square.GetCentreBottom(), square.GetBottomLeft());
 				break;
 			case 14:
-				MeshFromPoints(square.topLeft, square.topRight, square.bottomRight, square.centreBottom, square.centreLeft);
+				MeshFromPoints(square.GetTopLeft(), square.GetTopRight(), square.GetBottomRight(), square.GetCentreBottom(), square.GetCentreLeft());
 				break;
 
 			// All points in square
 			case 15:
-				MeshFromPoints(square.topLeft, square.topRight, square.bottomRight, square.bottomLeft);
-				checkedVertices.Add(square.topLeft.vertexIndex);
-				checkedVertices.Add(square.topRight.vertexIndex);
-				checkedVertices.Add(square.bottomRight.vertexIndex);
-				checkedVertices.Add(square.bottomLeft.vertexIndex);
+				MeshFromPoints(square.GetTopLeft(), square.GetTopRight(), square.GetBottomRight(), square.GetBottomLeft());
+				checkedVertices.Add(square.GetTopLeft().GetVertexIndex());
+				checkedVertices.Add(square.GetTopRight().GetVertexIndex());
+				checkedVertices.Add(square.GetBottomRight().GetVertexIndex());
+				checkedVertices.Add(square.GetBottomLeft().GetVertexIndex());
 				break;
 		}
 
 	}
 
-	void MeshFromPoints(params CentreNode[] points)
+	private void MeshFromPoints(params CentreNode[] points)
 	{
 		AssignVertices(points);
 
@@ -408,28 +402,28 @@ public class MeshGenerator : MonoBehaviour
 		}
 	}
 
-	void AssignVertices(CentreNode[] points)
+	private void AssignVertices(CentreNode[] points)
 	{
 		for (int i = 0; i < points.Length; i++)
 		{
-			if (points[i].vertexIndex == -1)
+			if (points[i].GetVertexIndex() == -1)
 			{
-				points[i].vertexIndex = vertices.Count;
-				vertices.Add(points[i].position);
+				points[i].SetVertexIndex(vertices.Count);
+				vertices.Add(points[i].GetPos());
 			}
 		}
 	}
 
-	void CreateTriangle(CentreNode a, CentreNode b, CentreNode c)
+	private void CreateTriangle(CentreNode a, CentreNode b, CentreNode c)
 	{
-		triangles.Add(a.vertexIndex);
-		triangles.Add(b.vertexIndex);
-		triangles.Add(c.vertexIndex);
+		triangles.Add(a.GetVertexIndex());
+		triangles.Add(b.GetVertexIndex());
+		triangles.Add(c.GetVertexIndex());
 
-		MeshTriangle triangle = new MeshTriangle(a.vertexIndex, b.vertexIndex, c.vertexIndex);
-		AddTriangleToDictionary(triangle.vertextIndexA, triangle);
-		AddTriangleToDictionary(triangle.vertextIndexB, triangle);
-		AddTriangleToDictionary(triangle.vertextIndexC, triangle);
+		MeshTriangle triangle = new MeshTriangle(a.GetVertexIndex(), b.GetVertexIndex(), c.GetVertexIndex());
+		AddTriangleToDictionary(triangle.GetVertexA(), triangle);
+		AddTriangleToDictionary(triangle.GetVertexB(), triangle);
+		AddTriangleToDictionary(triangle.GetVertexC(), triangle);
 	}
 
 	private void AddTriangleToDictionary(int vertexIndexKey, MeshTriangle triangle)
@@ -484,11 +478,11 @@ public class MeshGenerator : MonoBehaviour
 
 	private int GetConnectedVertexEdge(int vertexIndex)
     {
-		List<MeshTriangle> trianglesContainingVertex = triangleDictionary[vertexIndex];
+		List<MeshTriangle> trianglesWithVertex = triangleDictionary[vertexIndex];
 
-		for(int i = 0; i < trianglesContainingVertex.Count; i++)
+		for(int i = 0; i < trianglesWithVertex.Count; i++)
         {
-			MeshTriangle triangle = trianglesContainingVertex[i];
+			MeshTriangle triangle = trianglesWithVertex[i];
 
 			for(int j = 0; j < 3; j++)
             {
@@ -509,14 +503,15 @@ public class MeshGenerator : MonoBehaviour
 
 	private bool IsTriangleVertexEdge(int vertexA, int vertexB)
     {
-		List<MeshTriangle> trianglesContainingVertexA = triangleDictionary[vertexA];
+		List<MeshTriangle> trianglesWithVertexA = triangleDictionary[vertexA];
 		int sharedTriangleCount = 0;
 
-		for(int i = 0; i< trianglesContainingVertexA.Count; i++)
+		for(int i = 0; i< trianglesWithVertexA.Count; i++)
         {
-			if(trianglesContainingVertexA[i].Contains(vertexB))
+			if(trianglesWithVertexA[i].Contains(vertexB))
             {
 				sharedTriangleCount++;
+
 				if(sharedTriangleCount > 1)
                 {
 					break;

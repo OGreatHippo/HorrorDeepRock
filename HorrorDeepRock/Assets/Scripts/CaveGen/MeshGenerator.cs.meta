@@ -3,7 +3,16 @@ guid: f500c685b3d8fb84a938ecae1e9bb24d
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - walls: {instanceID: 0}
+  - floor: {instanceID: 0}
+  - roof: {instanceID: 0}
+  - caveM: {instanceID: 0}
+  - wallCollider: {instanceID: 0}
+  - floorCollider: {instanceID: 0}
+  - roofCollider: {instanceID: 0}
+  - navMesh: {instanceID: 0}
+  - caveMat: {fileID: 2100000, guid: e90e88ab3125a534782fb191d1c32a09, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

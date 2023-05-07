@@ -231,6 +231,7 @@ MonoBehaviour:
   chunk: {fileID: 1267559277522675837, guid: 69ab06f9a06b1e6479f84ec34ddaedd8, type: 3}
   chunkDistance: 2
   chunks: []
+  spawnPlayer: 0
 --- !u!4 &277621027
 Transform:
   m_ObjectHideFlags: 0
@@ -339,7 +340,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!81 &478252803
 AudioListener:
   m_ObjectHideFlags: 0
