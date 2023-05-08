@@ -27,4 +27,14 @@ public class TileCoordinate
     {
         return tileZ;
     }
+
+    public int SetTileX(int _tileX)
+    {
+        return tileX = _tileX;
+    }
+
+    public int SetTileZ(int _tileZ)
+    {
+        return tileZ = _tileZ;
+    }
 }

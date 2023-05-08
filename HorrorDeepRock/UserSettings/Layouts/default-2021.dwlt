@@ -260,7 +260,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 1
   m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: ProjectBrowser
+  m_Name: ConsoleWindow
   m_EditorClassIdentifier: 
   m_Children: []
   m_Position:
@@ -269,14 +269,14 @@ MonoBehaviour:
     y: 1007
     width: 2233
     height: 292
-  m_MinSize: {x: 231, y: 271}
-  m_MaxSize: {x: 10001, y: 10021}
-  m_ActualView: {fileID: 17}
+  m_MinSize: {x: 100, y: 100}
+  m_MaxSize: {x: 4000, y: 4000}
+  m_ActualView: {fileID: 18}
   m_Panes:
   - {fileID: 17}
   - {fileID: 18}
-  m_Selected: 0
-  m_LastSelected: 1
+  m_Selected: 1
+  m_LastSelected: 0
 --- !u!114 &12
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -427,9 +427,9 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: 325dffff
+      m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 425dffff485dffff16e1ffff1ce1ffff4ae1ffff50e1ffff7ee1ffff84e1ffffb2e1ffffb8e1ffffe6e1ffffece1ffff1ae2ffff20e2ffff4ee2ffff54e2ffff82e2ffff88e2ffff20f9ffff26f9ffff38fbffff18590000
+      m_ExpandedIDs: 663bffff6c3bffff8e7bffff947bffffc27bffffc87bffff1c80ffff2280ffff60abffff66abffff68edffff6eedffff38eeffff3eeeffff38fbffff1a590000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -669,7 +669,7 @@ MonoBehaviour:
       index: 10
       layout: 4
   m_WindowGUID: cc27987af1a868c49b0894db9c0f5429
-  m_Gizmos: 1
+  m_Gizmos: 0
   m_OverrideSceneCullingMask: 6917529027641081856
   m_SceneIsLit: 1
   m_SceneLighting: 1
@@ -678,13 +678,13 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 83.72572, y: 98.27902, z: -24.92531}
+    m_Target: {x: -1.8206029, y: 54.023308, z: -14.08278}
     speed: 2
-    m_Value: {x: 83.72572, y: 98.27902, z: -24.92531}
+    m_Value: {x: -1.8206029, y: 54.023308, z: -14.08278}
   m_RenderMode: 0
   m_CameraMode:
-    drawMode: 2
-    name: Shaded Wireframe
+    drawMode: 0
+    name: Shaded
     section: Shading Mode
   m_ValidateTrueMetals: 0
   m_DoValidateTrueMetals: 0
@@ -727,13 +727,13 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: 0.546266, y: -0.012474612, z: 0.0053030765, w: 0.8380865}
+    m_Target: {x: -0.65330535, y: 0.0018021654, z: -0.001599834, w: -0.7571595}
     speed: 2
-    m_Value: {x: 0.5460061, y: -0.011211981, z: 0.004481478, w: 0.8376942}
+    m_Value: {x: -0.6532713, y: 0.0018020716, z: -0.0015997506, w: -0.75712}
   m_Size:
-    m_Target: 6.607396
+    m_Target: 5.2062597
     speed: 2
-    m_Value: 6.607396
+    m_Value: 5.2062597
   m_Ortho:
     m_Target: 0
     speed: 2
@@ -863,21 +863,21 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scripts/CaveGen
+    - Assets/Prefabs
     m_Globs: []
     m_OriginalText: 
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Scripts/CaveGen
+  - Assets/Prefabs
   m_LastFoldersGridSize: -1
   m_LastProjectPath: E:\Projects\HorrorDeepRock\HorrorDeepRock
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 725c0000
-    m_LastClickedID: 23666
+    m_SelectedIDs: 685c0000
+    m_LastClickedID: 23656
     m_ExpandedIDs: 000000005a5c00006c5c000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0

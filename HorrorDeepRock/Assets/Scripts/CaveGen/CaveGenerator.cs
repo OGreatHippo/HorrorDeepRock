@@ -9,7 +9,6 @@ public class CaveGenerator : MonoBehaviour
 
     private int width;
     private int length;
-
     private string seed;
 
     private int fillPercent = 48;
@@ -34,15 +33,7 @@ public class CaveGenerator : MonoBehaviour
         GenerateCave(size);
     }
 
-    private void Update()
-    {
-        if(Input.GetKeyDown(KeyCode.P))
-        {
-            GenerateCave(size);
-        }
-    }
-
-    private void GenerateCave(int size)
+    public void GenerateCave(int size)
     {
         width = size;
         length = size;
@@ -58,6 +49,8 @@ public class CaveGenerator : MonoBehaviour
 
         ProcessCave();
 
+        ConnectChunks();
+
         int wallBorderSize = 1;
         int[,] wallBorder = new int[width + wallBorderSize * 2, length + wallBorderSize * 2];
 
@@ -70,9 +63,14 @@ public class CaveGenerator : MonoBehaviour
                     wallBorder[x, z] = cave[x - wallBorderSize, z - wallBorderSize];
                 }
 
-                else
+                else if(x == 0 && z == length / 2 || x == width && z == length / 2 || x == width / 2 && length == 0 || x == width / 2 && z == length)
                 {
                     wallBorder[x, z] = 1;
+                }
+
+                else
+                {
+                    wallBorder[x, z] = 0;
                 }
             }
         }
@@ -94,7 +92,7 @@ public class CaveGenerator : MonoBehaviour
                 {
                     cave[tile.GetTileX(), tile.GetTileZ()] = 0;
                 }
-            }
+            }   
         }
 
         List<List<TileCoordinate>> roomRegions = FindRegions(0);
@@ -218,6 +216,111 @@ public class CaveGenerator : MonoBehaviour
         }
     }
 
+    private void ConnectChunks()
+    {
+        TileCoordinate topMostTile = new TileCoordinate();
+        TileCoordinate rightMostTile = new TileCoordinate();
+        TileCoordinate bottomMostTile = new TileCoordinate();
+        TileCoordinate leftMostTile = new TileCoordinate();
+
+        TileCoordinate topTile = new TileCoordinate();
+        TileCoordinate rightTile = new TileCoordinate();
+        TileCoordinate bottomTile = new TileCoordinate();
+        TileCoordinate leftTile = new TileCoordinate();
+
+        int highestPoint = 0;
+        int rightMostPoint = 0;
+
+        for(int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < length; z++)
+            {
+                if(x == width / 2)
+                {
+                    bottomTile.SetTileX(x);
+                    bottomTile.SetTileZ(0);
+
+                    if (cave[x, z] == 0)
+                    {
+                        bottomMostTile.SetTileX(x);
+                        bottomMostTile.SetTileZ(z);
+
+                        topMostTile.SetTileX(x);
+                    }
+
+                    if(cave[x, z] == 0 && z > highestPoint)
+                    {
+                        highestPoint = z;
+                    }
+
+                    if(z == length - 1)
+                    {
+                        topTile.SetTileX(x);
+                        topTile.SetTileZ(z);
+                    }
+                }
+
+                else if(z == length / 2)
+                {
+                    leftTile.SetTileX(0);
+                    leftTile.SetTileZ(z);
+
+                    if (cave[x, z] == 0)
+                    {
+                        leftMostTile.SetTileX(x);
+                        leftMostTile.SetTileZ(z);
+
+                        rightMostTile.SetTileZ(z);
+                    }
+
+                    if (cave[x, z] == 0 && x > rightMostPoint)
+                    {
+                        rightMostPoint = x;
+                    }
+
+                    if(x == width - 1)
+                    {
+                        rightTile.SetTileX(x);
+                        rightTile.SetTileZ(z);
+                    }
+                }
+            }
+        }
+
+        topMostTile.SetTileZ(highestPoint);
+        rightMostTile.SetTileX(rightMostPoint);
+
+        if(gameObject.transform.position == new Vector3(0, gameObject.transform.position.y, 0))
+        {
+            List<TileCoordinate> line = CreateLine(topMostTile, topTile);
+            List<TileCoordinate> bline = CreateLine(bottomMostTile, bottomTile);
+            List<TileCoordinate> rline = CreateLine(rightMostTile, rightTile);
+            List<TileCoordinate> lline = CreateLine(leftMostTile, leftTile);
+
+            //foreach (TileCoordinate c in line)
+            //{
+            //    CreateEmptySpace(c, 2);
+            //}
+
+            //foreach (TileCoordinate c in rline)
+            //{
+            //    CreateEmptySpace(c, 2);
+            //}
+
+            //These 2 are incorrect
+
+            foreach (TileCoordinate c in bline)
+            {
+                CreateEmptySpace(c, 2);
+            }
+
+            //foreach (TileCoordinate c in lline)
+            //{
+            //    CreateEmptySpace(c, 2);
+            //}
+        }
+    }
+
     private void CreatePath(CaveRoom roomA, CaveRoom roomB, TileCoordinate tileA, TileCoordinate tileB)
     {
         CaveRoom.SetConnectedRooms(roomA, roomB);
@@ -226,7 +329,7 @@ public class CaveGenerator : MonoBehaviour
 
         foreach (TileCoordinate c in line)
         {
-            CreateEmptySpace(c, 10);
+            CreateEmptySpace(c, 5);
         }
     }
 
@@ -239,10 +342,10 @@ public class CaveGenerator : MonoBehaviour
                 if (x * x + z * z <= r * r)
                 {
                     int drawX = c.GetTileX() + x;
-                    int drawY = c.GetTileZ() + z;
-                    if (IsInRange(drawX, drawY))
+                    int drawZ = c.GetTileZ() + z;
+                    if (IsInRange(drawX, drawZ))
                     {
-                        cave[drawX, drawY] = 0;
+                        cave[drawX, drawZ] = 0;
                     }
                 }
             }
@@ -385,7 +488,30 @@ public class CaveGenerator : MonoBehaviour
             {
                 if (x == 0 || x == width - 1 || z == 0 || z == length - 1)
                 {
-                    cave[x, z] = 1;
+                    if(x == 0 && z == length / 2)
+                    {
+                        cave[x, z] = 0;
+                    }
+
+                    else if (x == width - 1 && z == length / 2)
+                    {
+                        cave[x, z] = 0;
+                    }
+
+                    else if (x == width / 2 && z == 0)
+                    {
+                        cave[x, z] = 0;
+                    }
+
+                    else if (x == 0 && z == length - 1)
+                    {
+                        cave[x, z] = 0;
+                    }
+
+                    else
+                    {
+                        cave[x, z] = 1;
+                    }  
                 }
                 else
                 {

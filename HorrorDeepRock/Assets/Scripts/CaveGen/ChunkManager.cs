@@ -52,6 +52,17 @@ public class ChunkManager : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            foreach(GameObject _chunk in chunks)
+            {
+                _chunk.GetComponent<CaveGenerator>().GenerateCave(chunkSize);
+            }
+        }
+    }
+
     private void CreateChunk(Vector2 pos)
     {
         var chunkyboi = Instantiate(chunk, new Vector3(transform.position.x + (pos.x * chunkSize), transform.position.y, transform.position.z + (pos.y * chunkSize) ), Quaternion.identity);

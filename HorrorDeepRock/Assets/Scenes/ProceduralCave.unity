@@ -229,7 +229,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chunk: {fileID: 1267559277522675837, guid: 69ab06f9a06b1e6479f84ec34ddaedd8, type: 3}
-  chunkDistance: 2
+  chunkDistance: 1
   chunks: []
   spawnPlayer: 0
 --- !u!4 &277621027
