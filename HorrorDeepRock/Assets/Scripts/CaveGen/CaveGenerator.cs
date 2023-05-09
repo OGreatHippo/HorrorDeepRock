@@ -231,7 +231,15 @@ public class CaveGenerator : MonoBehaviour
         int highestPoint = 0;
         int rightMostPoint = 0;
 
-        for(int x = 0; x < width; x++)
+        bool bottomTileSet = false;
+        bool leftTileSet = false;
+
+        List<TileCoordinate> line;
+        List<TileCoordinate> bline;
+        List<TileCoordinate> rline;
+        List<TileCoordinate> lline;
+
+        for (int x = 0; x < width; x++)
         {
             for (int z = 0; z < length; z++)
             {
@@ -240,12 +248,14 @@ public class CaveGenerator : MonoBehaviour
                     bottomTile.SetTileX(x);
                     bottomTile.SetTileZ(0);
 
-                    if (cave[x, z] == 0)
+                    topMostTile.SetTileX(x);
+
+                    if (cave[x, z] == 0 && !bottomTileSet)
                     {
                         bottomMostTile.SetTileX(x);
                         bottomMostTile.SetTileZ(z);
 
-                        topMostTile.SetTileX(x);
+                        bottomTileSet = true;
                     }
 
                     if(cave[x, z] == 0 && z > highestPoint)
@@ -265,12 +275,14 @@ public class CaveGenerator : MonoBehaviour
                     leftTile.SetTileX(0);
                     leftTile.SetTileZ(z);
 
-                    if (cave[x, z] == 0)
+                    rightMostTile.SetTileZ(z);
+
+                    if (cave[x, z] == 0 && !leftTileSet)
                     {
                         leftMostTile.SetTileX(x);
                         leftMostTile.SetTileZ(z);
 
-                        rightMostTile.SetTileZ(z);
+                        leftTileSet = true;
                     }
 
                     if (cave[x, z] == 0 && x > rightMostPoint)
@@ -292,32 +304,102 @@ public class CaveGenerator : MonoBehaviour
 
         if(gameObject.transform.position == new Vector3(0, gameObject.transform.position.y, 0))
         {
-            List<TileCoordinate> line = CreateLine(topMostTile, topTile);
-            List<TileCoordinate> bline = CreateLine(bottomMostTile, bottomTile);
-            List<TileCoordinate> rline = CreateLine(rightMostTile, rightTile);
-            List<TileCoordinate> lline = CreateLine(leftMostTile, leftTile);
+            line = CreateLine(topMostTile, topTile);
+            bline = CreateLine(bottomMostTile, bottomTile);
+            rline = CreateLine(rightMostTile, rightTile);
+            lline = CreateLine(leftMostTile, leftTile);
 
-            //foreach (TileCoordinate c in line)
-            //{
-            //    CreateEmptySpace(c, 2);
-            //}
+            foreach (TileCoordinate c in line)
+            {
+                CreateEmptySpace(c, 2);
+            }
 
-            //foreach (TileCoordinate c in rline)
-            //{
-            //    CreateEmptySpace(c, 2);
-            //}
-
-            //These 2 are incorrect
+            foreach (TileCoordinate c in rline)
+            {
+                CreateEmptySpace(c, 2);
+            }
 
             foreach (TileCoordinate c in bline)
             {
                 CreateEmptySpace(c, 2);
             }
 
-            //foreach (TileCoordinate c in lline)
-            //{
-            //    CreateEmptySpace(c, 2);
-            //}
+            foreach (TileCoordinate c in lline)
+            {
+                CreateEmptySpace(c, 2);
+            }
+        }
+
+        if (gameObject.transform.position.x < 0)
+        {
+            rline = CreateLine(rightMostTile, rightTile);
+
+            foreach (TileCoordinate c in rline)
+            {
+                CreateEmptySpace(c, 2);
+            }
+        }
+
+        if (gameObject.transform.position.x > 0)
+        {
+            lline = CreateLine(leftMostTile, leftTile);
+
+            foreach (TileCoordinate c in lline)
+            {
+                CreateEmptySpace(c, 2);
+            }
+        }
+
+        if (gameObject.transform.position.x == 0)
+        {
+            rline = CreateLine(rightMostTile, rightTile);
+            lline = CreateLine(leftMostTile, leftTile);
+
+            foreach (TileCoordinate c in rline)
+            {
+                CreateEmptySpace(c, 2);
+            }
+
+            foreach (TileCoordinate c in lline)
+            {
+                CreateEmptySpace(c, 2);
+            }
+        }
+
+        if (gameObject.transform.position.z < 0)
+        {
+            line = CreateLine(topMostTile, topTile);
+
+            foreach (TileCoordinate c in line)
+            {
+                CreateEmptySpace(c, 2);
+            }
+        }
+
+        if (gameObject.transform.position.z > 0)
+        {
+            bline = CreateLine(bottomMostTile, bottomTile);
+
+            foreach (TileCoordinate c in bline)
+            {
+                CreateEmptySpace(c, 2);
+            }
+        }
+
+        if (gameObject.transform.position.z == 0)
+        {
+            line = CreateLine(topMostTile, topTile);
+            bline = CreateLine(bottomMostTile, bottomTile);
+
+            foreach (TileCoordinate c in line)
+            {
+                CreateEmptySpace(c, 2);
+            }
+
+            foreach (TileCoordinate c in bline)
+            {
+                CreateEmptySpace(c, 2);
+            }
         }
     }
 
