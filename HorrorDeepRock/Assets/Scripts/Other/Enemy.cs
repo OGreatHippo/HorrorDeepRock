@@ -16,14 +16,14 @@ public class Enemy : MonoBehaviour
     private Animator animator;
     private NavMeshAgent agent;
 
-    private Transform test;
     private float distanceFromPlayer = 0.7f;
+
+    public bool menuMode;
 
     private void Start()
     {
         animator = GetComponentInChildren<Animator>();
-        agent = GetComponent<NavMeshAgent>();
-        test = GameObject.Find("TestPos").transform;
+        agent = GetComponent<NavMeshAgent>();   
     }
 
     private void Update()
@@ -34,19 +34,22 @@ public class Enemy : MonoBehaviour
 
     private void Movement()
     {
-        transform.LookAt(test);
-
-        agent.SetDestination(test.position);
-
-        currentSpeed = walkSpeed;
-
-        if(Vector3.Distance(transform.position, test.position) < distanceFromPlayer)
+        if(!menuMode)
         {
-            gameObject.GetComponent<NavMeshAgent>().velocity = Vector3.zero;
+            //transform.LookAt(test);
 
-            currentSpeed = 3;
+            //agent.SetDestination(test.position);
 
-            Debug.Log("Hits Player");
+            currentSpeed = walkSpeed;
+
+            //if (Vector3.Distance(transform.position, test.position) < distanceFromPlayer)
+            //{
+            //    gameObject.GetComponent<NavMeshAgent>().velocity = Vector3.zero;
+
+            //    currentSpeed = 3;
+
+            //    Debug.Log("Hits Player");
+            //}
         }
     }
 

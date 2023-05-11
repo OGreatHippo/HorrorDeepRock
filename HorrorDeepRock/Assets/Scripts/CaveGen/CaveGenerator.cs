@@ -589,14 +589,17 @@ public class CaveGenerator : MonoBehaviour
 
         if(spawnPlayer)
         {
-            for (int x = width - 1; x > 0; x--)
+            if (gameObject.name == "Chunk[0, 0]")
             {
-                for (int z = length - 1; z > 0; z--)
+                for (int x = width - 1; x > 0; x--)
                 {
-                    if (cave[x, z] == 0 && !enemySpawned)
+                    for (int z = length - 1; z > 0; z--)
                     {
-                        Instantiate(Enemy, new Vector3(x / 2 - 5, -5, z / 2 - 5), Quaternion.Euler(0, -145, 0));
-                        enemySpawned = true;
+                        if (cave[x, z] == 0 && !enemySpawned)
+                        {
+                            Instantiate(Enemy, new Vector3(x / 2 - 5, -5, z / 2 - 5), Quaternion.Euler(0, -145, 0));
+                            enemySpawned = true;
+                        }
                     }
                 }
             }

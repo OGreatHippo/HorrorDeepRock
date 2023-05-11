@@ -33,8 +33,13 @@ public class PlayerCharacter : MonoBehaviour
     private Transform playerCamera;
     private float xRotationCamera = 0f;
 
+    //Menu
+    private GameObject menu;
+    private bool inMenu;
+
+
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         GetComponents();
@@ -42,11 +47,16 @@ public class PlayerCharacter : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        MouseLook();
-        Movement();
-        Jump();
+        if(!inMenu)
+        {
+            MouseLook();
+            Movement();
+            Jump();
+        }
+        
+        Menu();
     }
 
     private void MouseLook()
@@ -186,6 +196,28 @@ public class PlayerCharacter : MonoBehaviour
         }
     }
 
+    private void Menu()
+    {
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            inMenu = !inMenu;
+        }
+
+        if(inMenu)
+        {
+            menu.SetActive(true);
+
+            Cursor.lockState = CursorLockMode.Confined;
+        }
+
+        else
+        {
+            menu.SetActive(false);
+
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+    }
+
     private void GetComponents()
     {
         controller = GetComponent<CharacterController>();
@@ -194,5 +226,7 @@ public class PlayerCharacter : MonoBehaviour
         staminaSlider = GameObject.Find("Canvas").transform.Find("StaminaBar").GetComponent<StaminaSlider>();
         staminaImg = staminaSlider.transform.Find("Stamina").GetComponent<Image>();
         audioSource = gameObject.GetComponent<AudioSource>();
+
+        menu = GameObject.Find("Canvas").transform.Find("OptionsPanel").gameObject;
     }
 }
