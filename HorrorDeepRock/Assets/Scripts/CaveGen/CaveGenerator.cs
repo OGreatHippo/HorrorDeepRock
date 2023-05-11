@@ -24,6 +24,7 @@ public class CaveGenerator : MonoBehaviour
     private int size;
 
     private bool spawnPlayer;
+    private bool infiniteGen;
 
     // Start is called before the first frame update
     private void Start()
@@ -301,34 +302,6 @@ public class CaveGenerator : MonoBehaviour
 
         topMostTile.SetTileZ(highestPoint);
         rightMostTile.SetTileX(rightMostPoint);
-
-        if(gameObject.transform.position == new Vector3(0, gameObject.transform.position.y, 0))
-        {
-            line = CreateLine(topMostTile, topTile);
-            bline = CreateLine(bottomMostTile, bottomTile);
-            rline = CreateLine(rightMostTile, rightTile);
-            lline = CreateLine(leftMostTile, leftTile);
-
-            foreach (TileCoordinate c in line)
-            {
-                CreateEmptySpace(c, 2);
-            }
-
-            foreach (TileCoordinate c in rline)
-            {
-                CreateEmptySpace(c, 2);
-            }
-
-            foreach (TileCoordinate c in bline)
-            {
-                CreateEmptySpace(c, 2);
-            }
-
-            foreach (TileCoordinate c in lline)
-            {
-                CreateEmptySpace(c, 2);
-            }
-        }
 
         if (gameObject.transform.position.x < 0)
         {
@@ -614,17 +587,20 @@ public class CaveGenerator : MonoBehaviour
             }
         }
 
-        //for (int x = width - 1; x > 0; x--)
-        //{
-        //    for (int z = length - 1; z > 0; z--)
-        //    {
-        //        if (cave[x, z] == 0 && !enemySpawned)
-        //        {
-        //            Instantiate(Enemy, new Vector3(x / 2 - 5, -5, z / 2 - 5), Quaternion.Euler(0, -145, 0));
-        //            enemySpawned = true;
-        //        }
-        //    }
-        //}
+        if(spawnPlayer)
+        {
+            for (int x = width - 1; x > 0; x--)
+            {
+                for (int z = length - 1; z > 0; z--)
+                {
+                    if (cave[x, z] == 0 && !enemySpawned)
+                    {
+                        Instantiate(Enemy, new Vector3(x / 2 - 5, -5, z / 2 - 5), Quaternion.Euler(0, -145, 0));
+                        enemySpawned = true;
+                    }
+                }
+            }
+        }    
     }
 
     private void SmoothCave()

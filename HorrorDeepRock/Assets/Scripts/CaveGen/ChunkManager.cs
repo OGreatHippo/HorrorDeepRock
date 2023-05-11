@@ -6,7 +6,6 @@ public class ChunkManager : MonoBehaviour
 {
     public GameObject chunk;
 
-    // The size of each chunk, in units
     private int chunkSize = 80;
     public int chunkDistance = 1;
 
@@ -14,8 +13,12 @@ public class ChunkManager : MonoBehaviour
 
     public bool spawnPlayer;
 
+    public GameObject camera;
+
     void Start()
     {
+        camera = GameObject.Find("Camera");
+
         for(int x = 0; x < chunkDistance; x++)
         {
             for (int z = 0; z < chunkDistance; z++)
