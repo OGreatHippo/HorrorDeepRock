@@ -15,7 +15,7 @@ public class ChunkManager : MonoBehaviour
 
     private Transform camera;
 
-    public int unloadDistance = 100;
+    private int unloadDistance = 1;
 
     void Start()
     {
