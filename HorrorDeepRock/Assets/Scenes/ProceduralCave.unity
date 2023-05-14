@@ -232,7 +232,7 @@ MonoBehaviour:
   chunkDistance: 2
   chunks: []
   spawnPlayer: 0
-  camera: {fileID: 0}
+  unloadDistance: 100
 --- !u!4 &277621027
 Transform:
   m_ObjectHideFlags: 0

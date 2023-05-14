@@ -13,44 +13,22 @@ public class ChunkManager : MonoBehaviour
 
     public bool spawnPlayer;
 
-    public GameObject camera;
+    private Transform camera;
+
+    public int unloadDistance = 100;
 
     void Start()
     {
-        camera = GameObject.Find("Camera");
+        camera = GameObject.Find("Camera").transform;
 
-        for(int x = 0; x < chunkDistance; x++)
+        int startX = Mathf.RoundToInt(camera.position.x / chunkSize);
+        int startZ = Mathf.RoundToInt(camera.position.z / chunkSize);
+
+        for (int x = startX - chunkDistance; x < startX + chunkDistance; x++)
         {
-            for (int z = 0; z < chunkDistance; z++)
+            for (int z = startZ - chunkDistance; z < startZ + chunkDistance; z++)
             {
-                Vector2 pos = new Vector2(x, z);
-                Vector2 nXPos = new Vector2(x * -1, z);
-                Vector2 nZPos = new Vector2(x, z * -1);
-                Vector2 nZXPos = new Vector2(x * -1, z * -1);
-
-                if (x == 0 && z == 0)
-                {
-                    CreateChunk(pos);
-                    continue;
-                }
-
-                if (x == 0)
-                {
-                    CreateChunk(pos);
-                    CreateChunk(nZPos);
-                }
-                else if (z == 0)
-                {
-                    CreateChunk(pos);
-                    CreateChunk(nXPos);
-                }
-                else
-                {
-                    CreateChunk(pos);
-                    CreateChunk(nXPos);
-                    CreateChunk(nZPos);
-                    CreateChunk(nZXPos);
-                }
+                CreateChunk(new Vector2(x, z));
             }
         }
     }
@@ -62,6 +40,34 @@ public class ChunkManager : MonoBehaviour
             foreach(GameObject _chunk in chunks)
             {
                 _chunk.GetComponent<CaveGenerator>().GenerateCave(chunkSize);
+            }
+        }
+
+        int playerX = Mathf.RoundToInt(camera.position.x / chunkSize);
+        int playerZ = Mathf.RoundToInt(camera.position.z / chunkSize);
+
+        // Load new chunks
+        for (int x = playerX - chunkDistance; x < playerX + chunkDistance; x++)
+        {
+            for (int z = playerZ - chunkDistance; z < playerZ + chunkDistance; z++)
+            {
+                if (!ChunkExists(new Vector2(x, z)))
+                {
+                    CreateChunk(new Vector2(x, z));
+                }
+            }
+        }
+
+        // Unload old chunks
+        for (int i = chunks.Count - 1; i >= 0; i--)
+        {
+            GameObject chunk = chunks[i];
+            Vector2 chunkPos = GetChunkPos(chunk.transform.position);
+
+            if (Mathf.Abs(chunkPos.x - playerX) > unloadDistance || Mathf.Abs(chunkPos.y - playerZ) > unloadDistance)
+            {
+                chunks.RemoveAt(i);
+                Destroy(chunk);
             }
         }
     }
@@ -79,6 +85,26 @@ public class ChunkManager : MonoBehaviour
         chunkyboi.transform.SetParent(gameObject.transform);
         chunkyboi.GetComponent<CaveGenerator>().SetSize(chunkSize);
         chunks.Add(chunkyboi);
+    }
+
+    private bool ChunkExists(Vector2 pos)
+    {
+        foreach (GameObject chunk in chunks)
+        {
+            if (GetChunkPos(chunk.transform.position) == pos)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private Vector2 GetChunkPos(Vector3 worldPos)
+    {
+        int x = Mathf.RoundToInt(worldPos.x / chunkSize);
+        int z = Mathf.RoundToInt(worldPos.z / chunkSize);
+        return new Vector2(x, z);
     }
 
     public int GetSize()
