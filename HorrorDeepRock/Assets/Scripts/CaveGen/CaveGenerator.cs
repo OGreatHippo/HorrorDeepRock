@@ -303,77 +303,102 @@ public class CaveGenerator : MonoBehaviour
         topMostTile.SetTileZ(highestPoint);
         rightMostTile.SetTileX(rightMostPoint);
 
-        if (gameObject.transform.position.x < 0)
-        {
-            rline = CreateLine(rightMostTile, rightTile);
+        line = CreateLine(topMostTile, topTile);
+        bline = CreateLine(bottomMostTile, bottomTile);
+        rline = CreateLine(rightMostTile, rightTile);
+        lline = CreateLine(leftMostTile, leftTile);
 
-            foreach (TileCoordinate c in rline)
-            {
-                CreateEmptySpace(c, 2);
-            }
+        foreach (TileCoordinate c in rline)
+        {
+            CreateEmptySpace(c, 2);
         }
 
-        if (gameObject.transform.position.x > 0)
+        foreach (TileCoordinate c in lline)
         {
-            lline = CreateLine(leftMostTile, leftTile);
-
-            foreach (TileCoordinate c in lline)
-            {
-                CreateEmptySpace(c, 2);
-            }
+            CreateEmptySpace(c, 2);
         }
 
-        if (gameObject.transform.position.x == 0)
+        foreach (TileCoordinate c in line)
         {
-            rline = CreateLine(rightMostTile, rightTile);
-            lline = CreateLine(leftMostTile, leftTile);
-
-            foreach (TileCoordinate c in rline)
-            {
-                CreateEmptySpace(c, 2);
-            }
-
-            foreach (TileCoordinate c in lline)
-            {
-                CreateEmptySpace(c, 2);
-            }
+            CreateEmptySpace(c, 2);
         }
 
-        if (gameObject.transform.position.z < 0)
+        foreach (TileCoordinate c in bline)
         {
-            line = CreateLine(topMostTile, topTile);
-
-            foreach (TileCoordinate c in line)
-            {
-                CreateEmptySpace(c, 2);
-            }
+            CreateEmptySpace(c, 2);
         }
 
-        if (gameObject.transform.position.z > 0)
-        {
-            bline = CreateLine(bottomMostTile, bottomTile);
+        //if (gameObject.transform.position.x < 0)
+        //{
+        //    rline = CreateLine(rightMostTile, rightTile);
 
-            foreach (TileCoordinate c in bline)
-            {
-                CreateEmptySpace(c, 2);
-            }
-        }
+        //    foreach (TileCoordinate c in rline)
+        //    {
+        //        CreateEmptySpace(c, 2);
+        //    }
+        //}
 
-        if (gameObject.transform.position.z == 0)
-        {
-            line = CreateLine(topMostTile, topTile);
-            bline = CreateLine(bottomMostTile, bottomTile);
+        //if (gameObject.transform.position.x > 0)
+        //{
+        //    lline = CreateLine(leftMostTile, leftTile);
 
-            foreach (TileCoordinate c in line)
-            {
-                CreateEmptySpace(c, 2);
-            }
+        //    foreach (TileCoordinate c in lline)
+        //    {
+        //        CreateEmptySpace(c, 2);
+        //    }
+        //}
 
-            foreach (TileCoordinate c in bline)
-            {
-                CreateEmptySpace(c, 2);
-            }
-        }
+        //if (gameObject.transform.position.x == 0)
+        //{
+        //    rline = CreateLine(rightMostTile, rightTile);
+        //    lline = CreateLine(leftMostTile, leftTile);
+
+        //    foreach (TileCoordinate c in rline)
+        //    {
+        //        CreateEmptySpace(c, 2);
+        //    }
+
+        //    foreach (TileCoordinate c in lline)
+        //    {
+        //        CreateEmptySpace(c, 2);
+        //    }
+        //}
+
+        //if (gameObject.transform.position.z < 0)
+        //{
+        //    line = CreateLine(topMostTile, topTile);
+
+        //    foreach (TileCoordinate c in line)
+        //    {
+        //        CreateEmptySpace(c, 2);
+        //    }
+        //}
+
+        //if (gameObject.transform.position.z > 0)
+        //{
+        //    bline = CreateLine(bottomMostTile, bottomTile);
+
+        //    foreach (TileCoordinate c in bline)
+        //    {
+        //        CreateEmptySpace(c, 2);
+        //    }
+        //}
+
+        //if (gameObject.transform.position.z == 0)
+        //{
+        //    line = CreateLine(topMostTile, topTile);
+        //    bline = CreateLine(bottomMostTile, bottomTile);
+
+        //    foreach (TileCoordinate c in line)
+        //    {
+        //        CreateEmptySpace(c, 2);
+        //    }
+
+        //    foreach (TileCoordinate c in bline)
+        //    {
+        //        CreateEmptySpace(c, 2);
+        //    }
+        //}
     }
 
     private void CreatePath(CaveRoom roomA, CaveRoom roomB, TileCoordinate tileA, TileCoordinate tileB)

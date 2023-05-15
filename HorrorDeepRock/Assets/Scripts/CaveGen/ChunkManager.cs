@@ -31,6 +31,8 @@ public class ChunkManager : MonoBehaviour
                 CreateChunk(new Vector2(x, z));
             }
         }
+
+        StartCoroutine(GenerateChunks());
     }
 
     private void Update()
@@ -43,32 +45,42 @@ public class ChunkManager : MonoBehaviour
             }
         }
 
-        int playerX = Mathf.RoundToInt(camera.position.x / chunkSize);
-        int playerZ = Mathf.RoundToInt(camera.position.z / chunkSize);
+        
+    }
 
-        // Load new chunks
-        for (int x = playerX - chunkDistance; x < playerX + chunkDistance; x++)
+    private IEnumerator GenerateChunks()
+    {
+        while (true)
         {
-            for (int z = playerZ - chunkDistance; z < playerZ + chunkDistance; z++)
+            int playerX = Mathf.RoundToInt(camera.position.x / chunkSize);
+            int playerZ = Mathf.RoundToInt(camera.position.z / chunkSize);
+
+            // Load new chunks
+            for (int x = playerX - chunkDistance; x < playerX + chunkDistance; x++)
             {
-                if (!ChunkExists(new Vector2(x, z)))
+                for (int z = playerZ - chunkDistance; z < playerZ + chunkDistance; z++)
                 {
-                    CreateChunk(new Vector2(x, z));
+                    if (!ChunkExists(new Vector2(x, z)))
+                    {
+                        CreateChunk(new Vector2(x, z));
+                    }
                 }
             }
-        }
 
-        // Unload old chunks
-        for (int i = chunks.Count - 1; i >= 0; i--)
-        {
-            GameObject chunk = chunks[i];
-            Vector2 chunkPos = GetChunkPos(chunk.transform.position);
-
-            if (Mathf.Abs(chunkPos.x - playerX) > unloadDistance || Mathf.Abs(chunkPos.y - playerZ) > unloadDistance)
+            // Unload old chunks
+            for (int i = chunks.Count - 1; i >= 0; i--)
             {
-                chunks.RemoveAt(i);
-                Destroy(chunk);
+                GameObject chunk = chunks[i];
+                Vector2 chunkPos = GetChunkPos(chunk.transform.position);
+
+                if (Mathf.Abs(chunkPos.x - playerX) > unloadDistance || Mathf.Abs(chunkPos.y - playerZ) > unloadDistance)
+                {
+                    chunks.RemoveAt(i);
+                    Destroy(chunk);
+                }
             }
+
+            yield return null;
         }
     }
 
