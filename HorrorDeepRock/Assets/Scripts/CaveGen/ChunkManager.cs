@@ -6,7 +6,7 @@ public class ChunkManager : MonoBehaviour
 {
     public GameObject chunk;
 
-    private int chunkSize = 80;
+    public int chunkSize = 40;
     public int chunkDistance = 1;
 
     public List<GameObject> chunks;
