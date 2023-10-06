@@ -11,7 +11,9 @@ public class MainMenu : MonoBehaviour
     private GameObject options;
 
     private bool inOptions = true;
-    public bool inMainMenu;
+    private bool inMainMenu;
+
+    public GameObject pcamera;
 
     private void Start()
     {
@@ -29,9 +31,11 @@ public class MainMenu : MonoBehaviour
 
     public void PlayButton()
     {
-        source.Play();
+        //source.Play();
 
-        StartCoroutine(MenuDelay(true, false));
+        //StartCoroutine(MenuDelay(true, false));
+
+        pcamera.GetComponent<Camera>().menuStuff();
     }
 
     public void OptionsButton()
@@ -59,9 +63,11 @@ public class MainMenu : MonoBehaviour
 
     public void QuitButton()
     {
-        source.Play();
+        //source.Play();
 
-        StartCoroutine(MenuDelay(false, false));
+        //StartCoroutine(MenuDelay(false, false));
+
+        Application.Quit();
     }
 
     private IEnumerator MenuDelay(bool play, bool menu)

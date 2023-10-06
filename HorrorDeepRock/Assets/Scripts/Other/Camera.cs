@@ -4,19 +4,28 @@ using UnityEngine;
 
 public class Camera : MonoBehaviour
 {
-    public float currentSpeed;
+    private float currentSpeed;
     private float speed = 50.0f;
     private float fast = 100.0f;
     private float sensitivity = 1000.0f;
 
     private float xRotationCamera = 0f;
 
+    //Menu
+    public GameObject menu;
+    private bool inMenu;
+
     // Update is called once per frame
     private void Update()
     {
         Cursor.lockState = CursorLockMode.Locked;
 
-        Movement();
+        if(!inMenu)
+        {
+            Movement();
+        }
+        
+        OpenMenu();
     }
 
     private void Movement()
@@ -43,5 +52,32 @@ public class Camera : MonoBehaviour
         float yRotationCamera = transform.eulerAngles.y + mouseX;
 
         transform.rotation = Quaternion.Euler(xRotationCamera, yRotationCamera, 0);
+    }
+
+    public void OpenMenu()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            inMenu = !inMenu;
+        }
+
+        if (inMenu)
+        {
+            menu.SetActive(true);
+
+            Cursor.lockState = CursorLockMode.Confined;
+        }
+
+        else
+        {
+            menu.SetActive(false);
+
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+    }
+
+    public void menuStuff()
+    {
+        inMenu = !inMenu;
     }
 }
